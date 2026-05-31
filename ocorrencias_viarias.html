@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocorrências Viárias</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── TOKENS LIGHT ── */
+:root{
+  --bg0:#fff;--bg1:#f5f4f0;--bg2:#eeede8;
+  --tx0:#1c1c1a;--tx1:#6b6a64;--tx2:#9c9a92;
+  --bd0:rgba(0,0,0,.08);--bd1:rgba(0,0,0,.15);--bd2:rgba(0,0,0,.28);
+  --ci:#185FA5;--bgi:#E6F1FB;--bdi:rgba(55,138,221,.4);
+  --cs:#0F6E56;--bgs:#E1F5EE;--bds:rgba(29,158,117,.4);
+  --cw:#7A4508;--bgw:#FEF0D6;--bdw:rgba(239,159,39,.5);
+  --cd:#9B2626;--bgd:#FCEAEA;--bdd:rgba(226,75,74,.4);
+  --cp:#3C3489;--bgp:#EEEDFE;--bdp:rgba(127,119,221,.4);
+  --tb-bg:#FCEAEA;--tb-bd:#D94646;--tb-tx:#6E1A1A;--tb-ic:#C03030;
+  --ta-bg:#FEF0D6;--ta-bd:#D88A10;--ta-tx:#6B3A04;--ta-ic:#B06A08;
+  --tp-bg:#E3EFF9;--tp-bd:#2E7EC4;--tp-tx:#0B3A6B;--tp-ic:#1A5C9A;
+  --r1:6px;--r2:8px;--r3:12px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+/* ── TOKENS DARK ── */
+@media(prefers-color-scheme:dark){:root{
+  --bg0:#1e1e1c;--bg1:#272724;--bg2:#2e2e2b;
+  --tx0:#e2e0d8;--tx1:#9c9a92;--tx2:#6b6a64;
+  --bd0:rgba(255,255,255,.07);--bd1:rgba(255,255,255,.13);--bd2:rgba(255,255,255,.24);
+  --ci:#7DB8F0;--bgi:rgba(55,138,221,.13);--bdi:rgba(55,138,221,.35);
+  --cs:#55C9A0;--bgs:rgba(29,158,117,.13);--bds:rgba(29,158,117,.35);
+  --cw:#F5BE5C;--bgw:rgba(239,159,39,.13);--bdw:rgba(239,159,39,.4);
+  --cd:#EE8C8C;--bgd:rgba(226,75,74,.13);--bdd:rgba(226,75,74,.38);
+  --cp:#ACA5EC;--bgp:rgba(127,119,221,.13);--bdp:rgba(127,119,221,.38);
+  --tb-bg:rgba(220,60,60,.15);--tb-bd:#D94646;--tb-tx:#F5AEAE;--tb-ic:#EE8C8C;
+  --ta-bg:rgba(220,140,16,.15);--ta-bd:#D88A10;--ta-tx:#F5C46A;--ta-ic:#F5BE5C;
+  --tp-bg:rgba(46,126,196,.15);--tp-bd:#2E7EC4;--tp-tx:#9DC8F0;--tp-ic:#7DB8F0;
+}}
+
+/* ── BASE ── */
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:100vh}
+
+/* ── HEADER ── */
+.app-header{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:0 20px;position:sticky;top:0;z-index:200}
+.app-title{display:flex;align-items:center;gap:10px;padding:14px 0 0;font-size:15px;font-weight:500}
+.app-title i{font-size:20px;color:var(--cd)}
+.nav-tabs{display:flex;overflow-x:auto;padding:8px 0 0;scrollbar-width:none;gap:0}
+.nav-tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;font-size:13px;padding:7px 14px 10px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--tx1);cursor:pointer;display:flex;align-items:center;gap:6px;transition:color .15s;white-space:nowrap}
+.tab-btn:hover{color:var(--tx0)}
+.tab-btn.active{color:var(--ci);border-bottom-color:var(--ci);font-weight:500}
+
+/* ── BODY / SCREENS ── */
+.app-body{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+.screen{display:none}
+.screen.active{display:block}
+
+/* ── MAPA GERAL — full-height ── */
+#s-mapa.active{display:flex;flex-direction:column;height:calc(100vh - 90px);padding:0;max-width:100%}
+.mapa-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.mapa-toolbar{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0;z-index:10}
+#mapa-geral{flex:1;z-index:1}
+.mapa-legenda{background:var(--bg0);border-top:.5px solid var(--bd0);padding:8px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;flex-shrink:0;z-index:10}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx1)}
+
+/* ── CARD / SECTION ── */
+.card{background:var(--bg0);border:.5px solid var(--bd0);border-radius:var(--r3);padding:16px 18px;margin-bottom:12px}
+.sec{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx1);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* ── FORM ── */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.row2 .full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--tx1)}
+.field input,.field textarea,.field select{font-size:13px;padding:8px 10px;border:.5px solid var(--bd1);border-radius:var(--r2);background:var(--bg1);color:var(--tx0);width:100%;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--ci);box-shadow:0 0 0 3px rgba(55,138,221,.12)}
+.field textarea{resize:vertical;min-height:72px}
+
+/* ── TIPO ── */
+.tipo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.tipo-card{border:1px solid var(--bd1);border-radius:var(--r2);padding:14px 8px 12px;text-align:center;cursor:pointer;background:var(--bg1);transition:border-color .15s,background .15s;user-select:none}
+.tipo-card:hover{border-color:var(--bd2)}
+.tipo-card .tipo-icon i{font-size:24px;color:var(--tx1);transition:color .15s}
+.tipo-card .tipo-name{font-size:13px;font-weight:500;margin-top:7px;color:var(--tx0);transition:color .15s}
+.tipo-card .tipo-desc{font-size:11px;color:var(--tx1);margin-top:3px;line-height:1.4}
+.tipo-card.sel-buraco{background:var(--tb-bg);border:2px solid var(--tb-bd)}
+.tipo-card.sel-buraco .tipo-icon i{color:var(--tb-ic)}
+.tipo-card.sel-buraco .tipo-name{color:var(--tb-tx)}
+.tipo-card.sel-afunda{background:var(--ta-bg);border:2px solid var(--ta-bd)}
+.tipo-card.sel-afunda .tipo-icon i{color:var(--ta-ic)}
+.tipo-card.sel-afunda .tipo-name{color:var(--ta-tx)}
+.tipo-card.sel-protu{background:var(--tp-bg);border:2px solid var(--tp-bd)}
+.tipo-card.sel-protu .tipo-icon i{color:var(--tp-ic)}
+.tipo-card.sel-protu .tipo-name{color:var(--tp-tx)}
+
+/* ── REPARO FLAG ── */
+.reparo-flag{display:none;align-items:flex-start;gap:10px;background:var(--bgw);border:.5px solid var(--bdw);border-radius:var(--r2);padding:12px;margin-bottom:12px;font-size:12px;color:var(--cw);line-height:1.6}
+.reparo-flag.show{display:flex}
+.reparo-flag i{font-size:18px;flex-shrink:0;margin-top:2px}
+.proto-wrap{display:none;margin-top:8px}
+.proto-wrap.show{display:block}
+
+/* ── GRAVIDADE ── */
+.sev-row{display:flex;gap:6px;margin-top:6px}
+.sev-btn{flex:1;padding:8px 4px;border-radius:var(--r2);border:.5px solid var(--bd1);font-size:12px;font-weight:500;text-align:center;cursor:pointer;background:transparent;color:var(--tx1);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.sev-btn.sel-low{border:1.5px solid var(--bds);color:var(--cs);background:var(--bgs)}
+.sev-btn.sel-med{border:1.5px solid var(--bdw);color:var(--cw);background:var(--bgw)}
+.sev-btn.sel-high{border:1.5px solid var(--bdd);color:var(--cd);background:var(--bgd)}
+
+/* ── FOTOS ── */
+.photo-area{display:flex;gap:10px;align-items:flex-start}
+.photo-box{width:76px;height:76px;border:1px dashed var(--bd1);border-radius:var(--r2);background:var(--bg1);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--tx1);cursor:pointer;flex-shrink:0;gap:3px;transition:border-color .15s}
+.photo-box:hover{border-color:var(--bd2)}
+.photo-box i{font-size:20px}
+.photo-hint{font-size:12px;color:var(--tx1);line-height:1.6}
+
+/* ── BOTÕES ── */
+.btn-primary{width:100%;padding:11px;border-radius:var(--r2);border:none;background:#1A6AB8;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;margin-top:10px}
+.btn-primary:hover{background:#0E4D8B}
+.act-btn{flex:1;padding:9px;border-radius:var(--r2);border:.5px solid var(--bd1);font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--tx0);display:flex;align-items:center;justify-content:center;gap:5px;transition:background .12s}
+.act-btn:hover{background:var(--bg1)}
+.act-btn.primary{background:#1A6AB8;color:#fff;border-color:transparent}
+.act-btn.primary:hover{background:#0E4D8B}
+.act-btn.success{background:#0F6E56;color:#fff;border-color:transparent}
+.act-btn.success:hover{background:#085041}
+.action-row{display:flex;gap:8px;margin-top:12px}
+
+/* ── ESTATÍSTICAS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat-card{background:var(--bg1);border-radius:var(--r2);padding:12px 14px}
+.stat-num{font-size:22px;font-weight:500}
+.stat-lbl{font-size:11px;color:var(--tx1);margin-top:2px}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.type-card{background:var(--bg1);border-radius:0 var(--r2) var(--r2) 0;padding:10px 12px;border-left:3px solid transparent}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.b-pend{background:var(--bgw);color:var(--cw)}
+.b-prog{background:var(--bgi);color:var(--ci)}
+.b-done{background:var(--bgs);color:var(--cs)}
+.b-rej{background:var(--bgd);color:var(--cd)}
+.b-qual{background:var(--bgp);color:var(--cp)}
+.b-buraco{background:var(--bgd);color:var(--cd)}
+.b-afunda{background:var(--bgw);color:var(--cw)}
+.b-protu{background:var(--bgi);color:var(--ci)}
+
+/* ── CHIPS / TAGS ── */
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--bg1);color:var(--tx1);border:.5px solid var(--bd0);display:inline-block}
+.filter-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.chip{font-size:11px;padding:4px 10px;border-radius:20px;border:.5px solid var(--bd1);background:transparent;color:var(--tx1);cursor:pointer;transition:all .15s}
+.chip.on{background:var(--bgi);color:var(--ci);border-color:var(--bdi)}
+
+/* ── LISTA ── */
+.report-list{display:flex;flex-direction:column;gap:6px}
+.report-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:.5px solid var(--bd0);border-radius:var(--r2);background:var(--bg0);cursor:pointer;transition:background .12s}
+.report-item:hover{background:var(--bg1)}
+.rphoto{width:44px;height:44px;border-radius:8px;background:var(--bg1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rphoto i{font-size:20px}
+.rinfo{flex:1;min-width:0}
+.raddr{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmeta{font-size:11px;color:var(--tx1);margin-top:3px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+/* ── DETALHE ── */
+.back-btn{font-size:13px;color:var(--ci);background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;margin-bottom:12px;padding:0}
+.resolved-banner{background:var(--bgs);border:.5px solid var(--bds);border-radius:var(--r2);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.resolved-banner i{font-size:22px;color:var(--cs);flex-shrink:0}
+.rb-title{font-size:13px;font-weight:500;color:var(--cs)}
+.rb-sub{font-size:11px;color:var(--cs);margin-top:2px;opacity:.85}
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.ba-box{border-radius:var(--r2);overflow:hidden;border:.5px solid var(--bd0)}
+.ba-label{font-size:11px;font-weight:500;padding:6px 10px;display:flex;align-items:center;gap:5px}
+.ba-photo{height:104px;display:flex;align-items:center;justify-content:center;background:var(--bg1)}
+.ba-photo i{font-size:34px}
+.ba-before .ba-label{background:var(--bgd);color:var(--cd)}
+.ba-after  .ba-label{background:var(--bgs);color:var(--cs)}
+.qual-alert{background:var(--bgp);border:.5px solid var(--bdp);border-radius:var(--r2);padding:12px 14px;display:flex;gap:10px;margin-bottom:12px;font-size:12px;line-height:1.6;color:var(--cp)}
+.qual-alert i{font-size:18px;flex-shrink:0;margin-top:1px}
+.qual-alert a{color:var(--cp);cursor:pointer;text-decoration:underline}
+.timeline{display:flex;flex-direction:column}
+.tl-step{display:flex;gap:12px;position:relative;padding-bottom:18px}
+.tl-step:last-child{padding-bottom:0}
+.tl-line{position:absolute;left:11px;top:24px;width:.5px;height:calc(100% - 24px);background:var(--bd1)}
+.tl-step:last-child .tl-line{display:none}
+.tl-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+.tl-dot.done{background:var(--bgs);color:var(--cs);border:.5px solid var(--bds)}
+.tl-dot.star{background:var(--bgs);color:var(--cs);border:.5px solid var(--bds)}
+.tl-body{padding-top:2px;flex:1}
+.tl-title{font-size:13px;font-weight:500}
+.tl-sub{font-size:11px;color:var(--tx1);margin-top:1px}
+.info-table{width:100%;font-size:13px;border-collapse:collapse}
+.info-table td{padding:7px 0;border-bottom:.5px solid var(--bd0);vertical-align:top}
+.info-table tr:last-child td{border-bottom:none}
+.ik{color:var(--tx1);padding-right:16px;white-space:nowrap}
+.iv{font-weight:500;text-align:right}
+.info-box{background:var(--bg1);border-radius:var(--r2);padding:8px 12px;font-size:12px;color:var(--tx1);line-height:1.5}
+.resolve-header{background:var(--bgs);border:.5px solid var(--bds);border-radius:var(--r3);padding:14px 18px;margin-bottom:12px}
+.link{color:var(--ci);cursor:pointer;text-decoration:underline}
+
+/* ── MAPA FORM ── */
+#mapa-leaflet{height:260px;border-radius:var(--r2);border:.5px solid var(--bd0);margin-bottom:10px}
+.map-estado{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px 16px;background:var(--bg1);border-radius:var(--r2);border:.5px solid var(--bd0);margin-bottom:10px;text-align:center}
+.map-estado i{font-size:28px;color:var(--tx1)}
+.map-estado p{font-size:13px;color:var(--tx1);line-height:1.5}
+.map-estado small{font-size:11px;color:var(--tx2)}
+.btn-gps{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--r2);border:.5px solid var(--bdi);background:var(--bgi);color:var(--ci);font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s}
+.btn-gps:hover{opacity:.85}
+.btn-gps:disabled{opacity:.5;cursor:default}
+.btn-repo{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r2);border:.5px solid var(--bd1);background:transparent;color:var(--tx1);font-size:12px;cursor:pointer;transition:background .12s}
+.btn-repo:hover{background:var(--bg1)}
+.coord-banner{display:flex;align-items:center;gap:8px;background:var(--bgs);border:.5px solid var(--bds);border-radius:var(--r2);padding:8px 12px;font-size:12px;color:var(--cs);margin-bottom:10px}
+.map-hint-strip{font-size:11px;color:var(--tx1);background:var(--bg1);border-radius:var(--r2);padding:6px 10px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+
+/* ── POPUP MAPA GERAL ── */
+.leaflet-popup-content-wrapper{border-radius:12px!important;font-family:inherit!important;padding:0!important;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.2)!important;border:none!important;min-width:240px}
+.leaflet-popup-content{margin:0!important;width:auto!important}
+.leaflet-popup-tip-container{margin-top:-1px}
+.popup-card{padding:14px 16px;font-family:inherit}
+.popup-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.popup-tipo{font-size:13px;font-weight:500;color:#1c1c1a}
+.popup-body{font-size:12px;color:#6b6a64;line-height:1.5;margin-bottom:10px}
+.popup-addr{font-size:12px;font-weight:500;color:#1c1c1a;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.popup-meta{font-size:11px;color:#9c9a92;margin-bottom:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.popup-footer{display:flex;gap:6px}
+.popup-btn{flex:1;padding:7px 0;border-radius:6px;border:.5px solid rgba(0,0,0,.15);font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:#1c1c1a;display:flex;align-items:center;justify-content:center;gap:5px}
+.popup-btn.primary{background:#1A6AB8;color:#fff;border-color:transparent}
+
+/* ── PAINEL LATERAL ── */
+.side-panel{position:fixed;top:0;right:-400px;width:360px;height:100vh;background:var(--bg0);border-left:.5px solid var(--bd0);z-index:9000;transition:right .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:-6px 0 24px rgba(0,0,0,.12)}
+.side-panel.open{right:0}
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:8999;display:none;backdrop-filter:blur(1px)}
+.panel-overlay.show{display:block}
+.panel-header{position:sticky;top:0;background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:14px 18px;display:flex;align-items:center;gap:8px;z-index:1}
+.panel-close{margin-left:auto;background:transparent;border:none;font-size:22px;color:var(--tx1);cursor:pointer;line-height:1;padding:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.panel-close:hover{background:var(--bg1)}
+.panel-body{padding:16px 18px}
+.panel-sec{margin-bottom:16px;padding-bottom:16px;border-bottom:.5px solid var(--bd0)}
+.panel-sec:last-child{border-bottom:none;margin-bottom:0}
+
+/* ── TOAST ── */
+#toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1c1a;color:#e2e0d8;padding:10px 20px;border-radius:var(--r2);font-size:13px;z-index:9999;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+
+/* ── ANIMAÇÕES ── */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:520px){
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .type-grid{grid-template-columns:1fr}
+  .row2{grid-template-columns:1fr}
+  .row2 .full{grid-column:1}
+  .side-panel{width:100%;right:-100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ CABEÇALHO ══ -->
+<header class="app-header">
+  <div class="app-title">
+    <i class="ti ti-road-off"></i>
+    <span>Ocorrências viárias</span>
+  </div>
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="go('form')"><i class="ti ti-alert-triangle"></i> Denunciar</button>
+    <button class="tab-btn" onclick="go('mapa')"><i class="ti ti-map"></i> Mapa geral</button>
+    <button class="tab-btn" onclick="go('painel')"><i class="ti ti-layout-dashboard"></i> Painel</button>
+    <button class="tab-btn" onclick="go('detalhe')"><i class="ti ti-file-description"></i> Ocorrência</button>
+    <button class="tab-btn" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Resolução</button>
+  </nav>
+</header>
+
+<main class="app-body">
+
+<!-- ══ TELA 1 — FORMULÁRIO ══ -->
+<section id="s-form" class="screen active">
+
+  <div class="card">
+    <div class="sec"><i class="ti ti-road"></i> Tipo de ocorrência</div>
+    <div class="tipo-grid">
+      <div class="tipo-card sel-buraco" data-tipo="buraco" onclick="selTipo(this)" tabindex="0" role="radio" aria-checked="true">
+        <div class="tipo-icon"><i class="ti ti-circle-dashed"></i></div>
+        <div class="tipo-name">Buraco</div>
+        <div class="tipo-desc">Cavidade por desgaste ou erosão</div>
+      </div>
+      <div class="tipo-card" data-tipo="afunda" onclick="selTipo(this)" tabindex="0" role="radio" aria-checked="false">
+        <div class="tipo-icon"><i class="ti ti-trending-down"></i></div>
+        <div class="tipo-name">Afundamento</div>
+        <div class="tipo-desc">Depressão sem ruptura visível</div>
+      </div>
+      <div class="tipo-card" data-tipo="protu" onclick="selTipo(this)" tabindex="0" role="radio" aria-checked="false">
+        <div class="tipo-icon"><i class="ti ti-trending-up"></i></div>
+        <div class="tipo-name">Protuberância</div>
+        <div class="tipo-desc">Elevação formando lombada irregular</div>
+      </div>
+    </div>
+    <div class="reparo-flag" id="flag-reparo">
+      <i class="ti ti-tool"></i>
+      <div>
+        <strong>Originado de reparo anterior?</strong><br>
+        Este tipo costuma ser consequência de um conserto mal executado.
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+          <input type="checkbox" id="chk-reparo" onchange="toggleProto(this)" style="width:auto;cursor:pointer">
+          <label for="chk-reparo" style="font-size:12px;cursor:pointer;color:var(--cw)">Sim, é resultado de reparo anterior</label>
+        </div>
+        <div class="proto-wrap" id="proto-wrap">
+          <input type="text" placeholder="Nº do protocolo anterior (ex: 2024-0045)" style="font-size:12px;border-color:var(--bdw);background:var(--bg0);margin-top:4px">
+        </div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field full">
+        <label>Dimensão estimada</label>
+        <select><option>Pequeno – até 20 cm</option><option>Médio – 20 a 60 cm</option><option>Grande – acima de 60 cm</option><option>Extenso – vários metros</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec"><i class="ti ti-map-pin"></i> Localização</div>
+    <div class="map-estado" id="loc-idle">
+      <i class="ti ti-map-2"></i>
+      <p>Marque o local exato no mapa satelital.<br>Quanto mais preciso, menos deslocamento da equipe.</p>
+      <button class="btn-gps" onclick="usarGPS()"><i class="ti ti-current-location"></i> Usar minha localização</button>
+      <small>ou <a class="link" onclick="abrirMapaManual()" style="cursor:pointer">posicionar manualmente no mapa</a></small>
+    </div>
+    <div class="map-estado" id="loc-loading" style="display:none">
+      <i class="ti ti-loader" style="animation:spin 1s linear infinite"></i>
+      <p>Obtendo localização via GPS…</p>
+      <small>Permita o acesso à localização no navegador.</small>
+    </div>
+    <div class="map-estado" id="loc-erro" style="display:none">
+      <i class="ti ti-map-pin-off" style="color:var(--cd)"></i>
+      <p style="color:var(--cd)">Não foi possível obter o GPS.<br>Posicione o marcador manualmente.</p>
+      <button class="btn-gps" onclick="abrirMapaManual()"><i class="ti ti-map"></i> Abrir mapa manualmente</button>
+    </div>
+    <div id="loc-mapa" style="display:none">
+      <div class="map-hint-strip"><i class="ti ti-hand-finger"></i> Arraste o marcador ou clique no mapa para posicionar com precisão</div>
+      <div id="mapa-leaflet"></div>
+      <div class="coord-banner" id="coord-banner" style="display:none">
+        <i class="ti ti-circle-check"></i>
+        <span id="coord-txt">Localização capturada</span>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Latitude</label><input id="inp-lat" type="text" readonly placeholder="—"></div>
+        <div class="field"><label>Longitude</label><input id="inp-lng" type="text" readonly placeholder="—"></div>
+        <div class="field full"><label>Endereço identificado</label><input id="inp-end" type="text" readonly placeholder="Identificando…"></div>
+      </div>
+      <div id="tags-via" style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:4px">
+        <button class="btn-repo" onclick="reposicionarGPS()"><i class="ti ti-current-location"></i> Reposicionar pelo GPS</button>
+      </div>
+    </div>
+    <div class="row2" style="margin-top:10px">
+      <div class="field"><label>Tipo de via</label><select><option>Pista de rolamento</option><option>Acostamento</option><option>Calçada</option><option>Ciclovia</option></select></div>
+      <div class="field"><label>Fluxo de tráfego</label><select><option>Alto (avenida principal)</option><option>Médio (rua local)</option><option>Baixo (rua de acesso)</option></select></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec"><i class="ti ti-camera"></i> Fotos</div>
+    <div class="photo-area">
+      <div class="photo-box" onclick="addFoto(this)"><i class="ti ti-camera"></i><span>Foto 1 *</span></div>
+      <div class="photo-box" style="opacity:.5" onclick="addFoto(this)"><i class="ti ti-plus"></i><span>Foto 2</span></div>
+      <div class="photo-hint">Ao menos 1 foto obrigatória.<br><strong style="color:var(--tx0)">Dica:</strong> inclua objeto de referência para dimensionar.<br><span style="color:var(--tx2)">Máx. 3 fotos · JPG/PNG · 10 MB</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec"><i class="ti ti-clipboard-text"></i> Descrição e gravidade</div>
+    <div class="field" style="margin-bottom:12px"><label>Descreva a ocorrência</label><textarea placeholder="Dimensão estimada, há quanto tempo está assim, se já causou acidentes…"></textarea></div>
+    <label style="font-size:12px;color:var(--tx1)">Gravidade / risco</label>
+    <div class="sev-row">
+      <button class="sev-btn" onclick="selSev(this,'low')"><i class="ti ti-circle" style="color:var(--cs)"></i> Baixa</button>
+      <button class="sev-btn sel-med" onclick="selSev(this,'med')"><i class="ti ti-circle" style="color:var(--cw)"></i> Média</button>
+      <button class="sev-btn" onclick="selSev(this,'high')"><i class="ti ti-circle" style="color:var(--cd)"></i> Alta</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec"><i class="ti ti-user"></i> Seus dados</div>
+    <div class="row2">
+      <div class="field"><label>Nome completo</label><input type="text" placeholder="João da Silva"></div>
+      <div class="field"><label>CPF</label><input type="text" placeholder="000.000.000-00"></div>
+      <div class="field"><label>Telefone / WhatsApp</label><input type="tel" placeholder="(18) 99999-0000"></div>
+      <div class="field"><label>E-mail</label><input type="email" placeholder="joao@email.com"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx1);margin-bottom:10px">
+      <input type="checkbox" id="anon" style="width:auto;cursor:pointer">
+      <label for="anon" style="cursor:pointer">Denúncia anônima – meus dados não serão exibidos publicamente</label>
+    </div>
+    <div class="info-box" style="margin-bottom:4px"><i class="ti ti-clock"></i> Após o envio você receberá um <strong style="color:var(--tx0)">número de protocolo</strong> por e-mail/SMS.</div>
+    <button class="btn-primary" onclick="enviarDenuncia()"><i class="ti ti-send"></i> Enviar denúncia</button>
+  </div>
+
+</section>
+
+
+<!-- ══ TELA 2 — MAPA GERAL ══ -->
+<section id="s-mapa" class="screen">
+  <div class="mapa-wrap">
+    <div class="mapa-toolbar">
+      <button class="chip on" onclick="filtroMapa('todos',this)">Todos</button>
+      <button class="chip" onclick="filtroMapa('buraco',this)">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D94646;margin-right:2px;vertical-align:middle"></span>Buracos
+      </button>
+      <button class="chip" onclick="filtroMapa('afunda',this)">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D88A10;margin-right:2px;vertical-align:middle"></span>Afundamentos
+      </button>
+      <button class="chip" onclick="filtroMapa('protu',this)">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2E7EC4;margin-right:2px;vertical-align:middle"></span>Protuberâncias
+      </button>
+      <button class="chip" onclick="filtroMapa('pendente',this)">⏳ Pendentes</button>
+      <button class="chip" onclick="filtroMapa('resolvido',this)">✓ Resolvidos</button>
+      <button class="btn-gps" style="margin-left:auto;padding:6px 12px;font-size:12px" onclick="centralizarUsuario()">
+        <i class="ti ti-current-location"></i> Minha localização
+      </button>
+    </div>
+    <div id="mapa-geral"></div>
+    <div class="mapa-legenda">
+      <span style="font-size:11px;font-weight:600;color:var(--tx1)">LEGENDA:</span>
+      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#D94646"/><circle cx="9" cy="9" r="4" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="2.5 1.5"/></svg> Buraco</span>
+      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#D88A10"/><polyline points="5,8 9,12 13,8" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Afundamento</span>
+      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#2E7EC4"/><polyline points="5,11 9,7 13,11" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Protuberância</span>
+      <span class="leg-item" style="gap:8px">
+        <span style="width:10px;height:10px;border-radius:50%;border:2px solid #D88A10;display:inline-block"></span>Pendente
+        <span style="width:10px;height:10px;border-radius:50%;border:2px solid #1A6AB8;display:inline-block"></span>Em execução
+        <span style="width:10px;height:10px;border-radius:50%;border:2px solid #0F6E56;display:inline-block"></span>Resolvido
+      </span>
+      <span class="leg-item"><span style="width:10px;height:10px;border-radius:50%;background:#1A6AB8;display:inline-block"></span> Você aqui</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ TELA 3 — PAINEL ══ -->
+<section id="s-painel" class="screen">
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num">247</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--cw)">89</div><div class="stat-lbl">Pendentes</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--ci)">63</div><div class="stat-lbl">Em execução</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--cs)">95</div><div class="stat-lbl">Resolvidas</div></div>
+  </div>
+  <div class="type-grid">
+    <div class="type-card" style="border-left-color:#D94646"><div style="font-size:16px;font-weight:500;color:var(--cd)">142</div><div style="font-size:11px;color:var(--tx1)">Buracos</div></div>
+    <div class="type-card" style="border-left-color:#D88A10"><div style="font-size:16px;font-weight:500;color:var(--cw)">68</div><div style="font-size:11px;color:var(--tx1)">Afundamentos</div></div>
+    <div class="type-card" style="border-left-color:#2E7EC4"><div style="font-size:16px;font-weight:500;color:var(--ci)">37</div><div style="font-size:11px;color:var(--tx1)">Protuberâncias</div></div>
+  </div>
+  <div class="card" style="padding-bottom:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="sec" style="margin:0">Ocorrências recentes</div>
+      <button class="act-btn" style="flex:none;font-size:11px;padding:5px 10px" onclick="go('mapa')"><i class="ti ti-map"></i> Ver no mapa</button>
+    </div>
+    <div class="filter-row">
+      <button class="chip on" onclick="filtrar(this)">Todas</button>
+      <button class="chip" onclick="filtrar(this)">Buracos</button>
+      <button class="chip" onclick="filtrar(this)">Afundamentos</button>
+      <button class="chip" onclick="filtrar(this)">Protuberâncias</button>
+      <button class="chip" onclick="filtrar(this)">Reparo mal feito</button>
+    </div>
+    <div class="report-list">
+      <div class="report-item" onclick="go('detalhe')">
+        <div class="rphoto"><i class="ti ti-circle-dashed" style="color:var(--cd)"></i></div>
+        <div class="rinfo"><div class="raddr">Av. Cel. José Soares Marcondes, 2100</div><div class="rmeta"><span class="badge b-buraco">Buraco</span>#2024-0089 · Alta</div></div>
+        <span class="badge b-pend">Pendente</span>
+      </div>
+      <div class="report-item" onclick="go('detalhe')">
+        <div class="rphoto"><i class="ti ti-trending-down" style="color:var(--cw)"></i></div>
+        <div class="rinfo"><div class="raddr">Rua Manoel Goulart, 450</div><div class="rmeta"><span class="badge b-afunda">Afundamento</span>Reparo anterior</div></div>
+        <span class="badge b-qual">Qualidade</span>
+      </div>
+      <div class="report-item" onclick="go('detalhe')">
+        <div class="rphoto"><i class="ti ti-trending-up" style="color:var(--ci)"></i></div>
+        <div class="rinfo"><div class="raddr">Rua Sete de Setembro, 830</div><div class="rmeta"><span class="badge b-protu">Protuberância</span>Reparo anterior</div></div>
+        <span class="badge b-prog">Em execução</span>
+      </div>
+      <div class="report-item" onclick="go('detalhe')">
+        <div class="rphoto"><i class="ti ti-circle-dashed" style="color:var(--cd)"></i></div>
+        <div class="rinfo"><div class="raddr">Av. Brasil, 1200</div><div class="rmeta"><span class="badge b-buraco">Buraco</span>Média</div></div>
+        <span class="badge b-done">Resolvido</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec"><i class="ti ti-chart-bar"></i> Por gravidade</div>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Alta</span><span style="color:var(--cd)">72 (29%)</span></div><div style="background:var(--bg1);border-radius:20px;height:6px;overflow:hidden"><div style="width:29%;height:100%;background:#D94646;border-radius:20px"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Média</span><span style="color:var(--cw)">108 (44%)</span></div><div style="background:var(--bg1);border-radius:20px;height:6px;overflow:hidden"><div style="width:44%;height:100%;background:#D88A10;border-radius:20px"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Baixa</span><span style="color:var(--cs)">67 (27%)</span></div><div style="background:var(--bg1);border-radius:20px;height:6px;overflow:hidden"><div style="width:27%;height:100%;background:#1D9E75;border-radius:20px"></div></div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ TELA 4 — DETALHE ══ -->
+<section id="s-detalhe" class="screen">
+  <button class="back-btn" onclick="go('painel')"><i class="ti ti-arrow-left"></i> Voltar ao painel</button>
+  <div class="resolved-banner"><i class="ti ti-circle-check"></i><div><div class="rb-title">Ocorrência resolvida</div><div class="rb-sub">Concluído em 29/05/2024 às 16:40 · Construtora Exemplo Ltda</div></div><span class="badge b-done" style="margin-left:auto">Resolvida</span></div>
+  <div class="card">
+    <div class="sec"><i class="ti ti-photo"></i> Comparativo antes / depois</div>
+    <div class="before-after">
+      <div class="ba-box ba-before"><div class="ba-label"><i class="ti ti-camera"></i> Antes — 28/05/2024</div><div class="ba-photo"><i class="ti ti-road-off" style="color:var(--cd)"></i></div></div>
+      <div class="ba-box ba-after"><div class="ba-label"><i class="ti ti-camera-check"></i> Depois — 29/05/2024</div><div class="ba-photo" style="background:rgba(29,158,117,.07)"><i class="ti ti-road" style="color:var(--cs)"></i></div></div>
+    </div>
+  </div>
+  <div class="qual-alert"><i class="ti ti-rotate-clockwise"></i><div><strong>Vinculado a reparo anterior</strong><br>Afundamento originado do conserto mal executado do protocolo <a onclick="alert('Protocolo #2024-0045')">#2024-0045</a>. Empresa notificada.</div></div>
+  <div class="card">
+    <div class="sec"><i class="ti ti-timeline"></i> Linha do tempo</div>
+    <div class="timeline">
+      <div class="tl-step"><div class="tl-line"></div><div class="tl-dot done"><i class="ti ti-check" style="font-size:11px"></i></div><div class="tl-body"><div class="tl-title">Denúncia recebida</div><div class="tl-sub">28/05/2024 14:32 · Protocolo #2024-0089</div></div></div>
+      <div class="tl-step"><div class="tl-line"></div><div class="tl-dot done"><i class="ti ti-check" style="font-size:11px"></i></div><div class="tl-body"><div class="tl-title">Aprovada</div><div class="tl-sub">28/05/2024 15:10 · Eng. Carlos Mendes</div></div></div>
+      <div class="tl-step"><div class="tl-line"></div><div class="tl-dot done"><i class="ti ti-check" style="font-size:11px"></i></div><div class="tl-body"><div class="tl-title">Execução iniciada</div><div class="tl-sub">29/05/2024 08:00 · Construtora Exemplo Ltda</div></div></div>
+      <div class="tl-step"><div class="tl-dot star"><i class="ti ti-star" style="font-size:11px"></i></div><div class="tl-body"><div class="tl-title" style="color:var(--cs)">Resolvida</div><div class="tl-sub">29/05/2024 16:40</div></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec"><i class="ti ti-info-circle"></i> Dados</div>
+    <table class="info-table">
+      <tr><td class="ik">Tipo</td><td class="iv"><span class="badge b-afunda">Afundamento</span></td></tr>
+      <tr><td class="ik">Gravidade</td><td class="iv"><span class="badge b-pend">Média</span></td></tr>
+      <tr><td class="ik">Denunciante</td><td class="iv">João da Silva</td></tr>
+      <tr><td class="ik">Empresa</td><td class="iv">Construtora Exemplo Ltda</td></tr>
+      <tr><td class="ik">Resolvido em</td><td class="iv" style="color:var(--cs)">29/05/2024 16:40</td></tr>
+      <tr><td class="ik">Reparo vinculado</td><td class="iv"><a class="link" onclick="alert('Protocolo #2024-0045')">Ver #2024-0045</a></td></tr>
+    </table>
+  </div>
+  <div class="action-row">
+    <button class="act-btn" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Registrar resolução</button>
+    <button class="act-btn primary" onclick="alert('Notificação enviada.')"><i class="ti ti-send"></i> Notificar cidadão</button>
+  </div>
+</section>
+
+
+<!-- ══ TELA 5 — RESOLUÇÃO ══ -->
+<section id="s-resolucao" class="screen">
+  <button class="back-btn" onclick="go('detalhe')"><i class="ti ti-arrow-left"></i> Voltar à ocorrência</button>
+  <div class="resolve-header">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><i class="ti ti-circle-check" style="font-size:20px;color:var(--cs)"></i><span style="font-size:14px;font-weight:500">Registrar resolução</span></div>
+    <div class="info-box"><i class="ti ti-info-circle"></i> Protocolo <strong style="color:var(--tx0)">#2024-0089</strong> · Av. Cel. José Soares Marcondes, 2100</div>
+  </div>
+  <div class="card">
+    <div class="sec"><i class="ti ti-calendar-check"></i> Data e responsável</div>
+    <div class="row2">
+      <div class="field"><label>Data</label><input type="date" value="2024-05-29"></div>
+      <div class="field"><label>Hora</label><input type="time" value="16:40"></div>
+      <div class="field full"><label>Responsável</label><select><option>Construtora Exemplo Ltda</option><option>Equipe interna – Obras</option></select></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec"><i class="ti ti-camera-check"></i> Foto após o reparo</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><div style="font-size:11px;color:var(--tx1);margin-bottom:5px"><i class="ti ti-camera"></i> Foto da denúncia</div><div style="height:96px;background:var(--bgd);border-radius:var(--r2);border:.5px solid var(--bdd);display:flex;align-items:center;justify-content:center"><i class="ti ti-road-off" style="font-size:32px;color:var(--cd)"></i></div></div>
+      <div><div style="font-size:11px;color:var(--tx1);margin-bottom:5px"><i class="ti ti-camera-check"></i> Após o reparo <span style="color:var(--cd)">*</span></div><div id="after-photo" style="height:96px;background:var(--bgs);border:1.5px dashed var(--bds);border-radius:var(--r2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer" onclick="registrarFoto()"><i class="ti ti-camera-plus" style="font-size:26px;color:var(--cs)"></i><span style="font-size:11px;color:var(--cs)">Tirar foto agora</span></div></div>
+    </div>
+    <div class="info-box"><i class="ti ti-alert-circle"></i> Foto <strong style="color:var(--tx0)">obrigatória</strong> para encerrar a ocorrência.</div>
+  </div>
+  <div class="card">
+    <div class="sec"><i class="ti ti-star"></i> Avaliação do reparo</div>
+    <div style="display:flex;flex-direction:column;gap:12px;font-size:13px">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer"><input type="radio" name="qual" checked style="width:auto;margin-top:2px"><div><div style="font-weight:500">Reparo adequado</div><div style="font-size:11px;color:var(--tx1)">Superfície nivelada e compactada</div></div></label>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer"><input type="radio" name="qual" style="width:auto;margin-top:2px"><div><div style="font-weight:500">Reparo provisório</div><div style="font-size:11px;color:var(--tx1)">Nova intervenção necessária</div></div></label>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer"><input type="radio" name="qual" style="width:auto;margin-top:2px"><div><div style="font-weight:500">Reparo com ressalvas</div><div style="font-size:11px;color:var(--tx1)">Concluído com ponto de atenção</div></div></label>
+    </div>
+    <div class="field" style="margin-top:12px"><label>Observação técnica</label><textarea placeholder="Materiais, condições, pendências…"></textarea></div>
+  </div>
+  <div class="card">
+    <div class="sec"><i class="ti ti-rotate-clockwise"></i> Este reparo gerou nova ocorrência?</div>
+    <div style="font-size:12px;color:var(--tx1);margin-bottom:12px;line-height:1.6">Se resultou em afundamento ou protuberância, registre como nova ocorrência. A empresa será vinculada automaticamente.</div>
+    <div class="action-row" style="margin:0">
+      <button class="act-btn" onclick="go('form')"><i class="ti ti-trending-down"></i> Afundamento</button>
+      <button class="act-btn" onclick="go('form')"><i class="ti ti-trending-up"></i> Protuberância</button>
+    </div>
+  </div>
+  <div class="action-row">
+    <button class="act-btn" onclick="go('detalhe')">Cancelar</button>
+    <button class="act-btn success" onclick="confirmarResolucao()"><i class="ti ti-circle-check"></i> Confirmar resolução</button>
+  </div>
+</section>
+
+</main>
+
+<!-- ══ PAINEL LATERAL ══ -->
+<div class="panel-overlay" id="panel-overlay" onclick="fecharPainel()"></div>
+<aside class="side-panel" id="side-panel">
+  <div class="panel-header">
+    <div id="p-tipo"></div>
+    <div id="p-status" style="margin-left:6px"></div>
+    <span id="p-proto" style="font-size:11px;color:var(--tx1);margin-left:auto;margin-right:8px"></span>
+    <button class="panel-close" onclick="fecharPainel()">×</button>
+  </div>
+  <div class="panel-body">
+    <div class="panel-sec">
+      <div id="p-end" style="font-size:15px;font-weight:500;margin-bottom:4px"></div>
+      <div id="p-coords" style="font-size:11px;color:var(--tx1);margin-bottom:10px"></div>
+      <button onclick="centralizarPin()" class="btn-repo"><i class="ti ti-crosshair"></i> Centralizar no mapa</button>
+    </div>
+    <div class="panel-sec">
+      <div class="sec" style="margin-bottom:10px">Detalhes</div>
+      <table class="info-table">
+        <tr><td class="ik">Gravidade</td><td class="iv" id="p-grav"></td></tr>
+        <tr><td class="ik">Data</td><td class="iv" id="p-data"></td></tr>
+        <tr><td class="ik">Denunciante</td><td class="iv" id="p-den"></td></tr>
+      </table>
+    </div>
+    <div class="panel-sec">
+      <div class="sec" style="margin-bottom:6px">Descrição</div>
+      <div id="p-desc" style="font-size:13px;color:var(--tx1);line-height:1.6"></div>
+    </div>
+    <div class="panel-sec" id="p-edit">
+      <div class="sec" style="margin-bottom:10px">Atualizar status</div>
+      <div class="field" style="margin-bottom:10px">
+        <label>Novo status</label>
+        <select id="p-sel-status">
+          <option value="pendente">Pendente</option>
+          <option value="execucao">Em execução</option>
+          <option value="resolvido">Resolvido</option>
+          <option value="qualidade">Qualidade — reparo mal feito</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>Empresa responsável</label>
+        <select><option>— Selecionar —</option><option>Construtora Exemplo Ltda</option><option>Equipe interna – Obras</option><option>Construtora ABC Ltda</option></select>
+      </div>
+      <div class="field" style="margin-bottom:12px">
+        <label>Observação</label>
+        <textarea placeholder="Notas para a equipe…"></textarea>
+      </div>
+      <div class="action-row" style="margin:0">
+        <button class="act-btn" onclick="fecharPainel()">Cancelar</button>
+        <button class="act-btn success" onclick="salvarPainel()"><i class="ti ti-circle-check"></i> Salvar</button>
+      </div>
+    </div>
+    <div class="action-row" style="margin-top:4px">
+      <button class="act-btn" onclick="go('detalhe');fecharPainel()"><i class="ti ti-file-description"></i> Detalhe completo</button>
+    </div>
+  </div>
+</aside>
+
+<div id="toast"></div>
+
+<!-- ══ LEAFLET ══ -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+/* ── DADOS MOCK ── */
+const OCS = [
+  {id:'2024-0089',tipo:'buraco', status:'pendente',  lat:-22.1189,lng:-51.3892,endereco:'Av. Cel. José Soares Marcondes, 2100',gravidade:'alta', data:'28/05/2024',denunciante:'João da Silva',  desc:'Buraco ~60 cm, sem sinalização, causou danos.'},
+  {id:'2024-0088',tipo:'afunda', status:'qualidade', lat:-22.1215,lng:-51.3901,endereco:'Rua Manoel Goulart, 450',            gravidade:'media',data:'27/05/2024',denunciante:'Anônimo',         desc:'Afundamento originado de reparo anterior #2024-0045.'},
+  {id:'2024-0087',tipo:'protu',  status:'execucao',  lat:-22.1178,lng:-51.3924,endereco:'Rua Sete de Setembro, 830',          gravidade:'media',data:'26/05/2024',denunciante:'Maria Oliveira',  desc:'Protuberância ~8 cm, risco para motos.'},
+  {id:'2024-0086',tipo:'buraco', status:'resolvido', lat:-22.1232,lng:-51.3865,endereco:'Av. Brasil, 1200',                   gravidade:'baixa',data:'22/05/2024',denunciante:'Pedro Costa',     desc:'Buraco pequeno no acostamento.'},
+  {id:'2024-0085',tipo:'buraco', status:'pendente',  lat:-22.1201,lng:-51.3949,endereco:'Rua Epitácio Pessoa, 300',           gravidade:'alta', data:'25/05/2024',denunciante:'Ana Santos',       desc:'Buraco causou dano a dois veículos.'},
+  {id:'2024-0084',tipo:'afunda', status:'pendente',  lat:-22.1156,lng:-51.3878,endereco:'Av. Washington Luiz, 1800',          gravidade:'alta', data:'24/05/2024',denunciante:'Carlos Lima',      desc:'Afundamento extenso ~3 m de comprimento.'},
+  {id:'2024-0083',tipo:'protu',  status:'resolvido', lat:-22.1244,lng:-51.3912,endereco:'Rua Santos Dumont, 560',             gravidade:'baixa',data:'20/05/2024',denunciante:'Sofia Ramos',      desc:'Lombada irregular pós-reparo, já corrigida.'},
+  {id:'2024-0082',tipo:'buraco', status:'execucao',  lat:-22.1167,lng:-51.3956,endereco:'Rua Dom Pedro II, 820',              gravidade:'media',data:'23/05/2024',denunciante:'Lucas Ferreira',   desc:'Buraco médio próximo a escola.'},
+  {id:'2024-0081',tipo:'afunda', status:'resolvido', lat:-22.1258,lng:-51.3870,endereco:'Av. Cel. Marcondes, 3400',           gravidade:'media',data:'15/05/2024',denunciante:'Beatriz Souza',    desc:'Afundamento resolvido com avaliação adequada.'},
+  {id:'2024-0080',tipo:'protu',  status:'pendente',  lat:-22.1192,lng:-51.3837,endereco:'Rua 15 de Novembro, 990',            gravidade:'alta', data:'26/05/2024',denunciante:'Ricardo Alves',    desc:'Protuberância alta, já causou acidente.'},
+  {id:'2024-0079',tipo:'buraco', status:'pendente',  lat:-22.1139,lng:-51.3898,endereco:'Av. Manoel Goulart, 2200',           gravidade:'media',data:'27/05/2024',denunciante:'Fernanda Lima',    desc:'Buracos múltiplos no mesmo trecho.'},
+  {id:'2024-0078',tipo:'afunda', status:'execucao',  lat:-22.1276,lng:-51.3930,endereco:'Rua Floriano Peixoto, 440',          gravidade:'alta', data:'21/05/2024',denunciante:'Marcelo Costa',    desc:'Afundamento severo em cruzamento movimentado.'},
+];
+
+/* ── LABELS ── */
+const LTIPO   = {buraco:'Buraco',afunda:'Afundamento',protu:'Protuberância'};
+const LSTATUS = {pendente:'Pendente',execucao:'Em execução',resolvido:'Resolvido',qualidade:'Qualidade'};
+const BSTATUS = {pendente:'b-pend',execucao:'b-prog',resolvido:'b-done',qualidade:'b-qual'};
+const GRAV    = {alta:'🔴 Alta',media:'🟡 Média',baixa:'🟢 Baixa'};
+const CORT    = {buraco:'#D94646',afunda:'#D88A10',protu:'#2E7EC4'};
+const CORD    = {pendente:'#D88A10',execucao:'#1A6AB8',resolvido:'#0F6E56',qualidade:'#7F77DD'};
+
+/* ── NAVEGAÇÃO ── */
+const TABS = {form:0,mapa:1,painel:2,detalhe:3,resolucao:4};
+function go(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  document.querySelectorAll('.tab-btn')[TABS[name]].classList.add('active');
+  if(name!=='mapa') window.scrollTo({top:0,behavior:'smooth'});
+  if(name==='mapa') iniciarMapaGeral();
+}
+
+/* ── FORMULÁRIO ── */
+function selTipo(el){
+  document.querySelectorAll('.tipo-card').forEach(c=>{c.classList.remove('sel-buraco','sel-afunda','sel-protu');c.setAttribute('aria-checked','false')});
+  el.classList.add('sel-'+el.dataset.tipo); el.setAttribute('aria-checked','true');
+  document.getElementById('flag-reparo').classList.toggle('show',el.dataset.tipo!=='buraco');
+  if(el.dataset.tipo==='buraco'){document.getElementById('chk-reparo').checked=false;document.getElementById('proto-wrap').classList.remove('show')}
+}
+function toggleProto(cb){document.getElementById('proto-wrap').classList.toggle('show',cb.checked)}
+function selSev(el,lv){document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('sel-low','sel-med','sel-high'));el.classList.add('sel-'+lv)}
+function filtrar(el){document.querySelectorAll('.filter-row .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
+function addFoto(el){el.style.opacity='1';el.innerHTML='<i class="ti ti-check" style="font-size:22px;color:var(--cs)"></i><span>Adicionada</span>';el.style.cursor='default';el.style.borderColor='var(--bds)';el.style.background='var(--bgs)'}
+function registrarFoto(){const el=document.getElementById('after-photo');el.innerHTML='<i class="ti ti-check" style="font-size:28px;color:var(--cs)"></i><span style="font-size:11px;color:var(--cs)">Foto registrada</span>';el.style.cursor='default';el.style.borderStyle='solid'}
+function enviarDenuncia(){alert('Denúncia enviada!\n\nProtocolo: #2024-0090\nVocê receberá atualizações por e-mail e SMS.')}
+function confirmarResolucao(){alert('Resolução confirmada!\nCidadão será notificado.');go('detalhe')}
+document.querySelectorAll('.tipo-card').forEach(c=>c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selTipo(c)}}));
+
+/* ── TILES GOOGLE HYBRID (satélite + nomes de rua) ── */
+function addSatelite(map){
+  L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{
+    maxZoom:21,
+    subdomains:['mt0','mt1','mt2','mt3'],
+    attribution:'© Google'
+  }).addTo(map);
+}
+
+/* ══════════════════════════════════════
+   MAPA DO FORMULÁRIO (denúncia)
+══════════════════════════════════════ */
+let mF=null,mrkF=null,mFok=false,gTimer=null;
+
+function iconeForm(){
+  return L.divIcon({className:'',html:'<div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));cursor:grab"><svg width="28" height="36" viewBox="0 0 28 36"><path d="M14 0C6.27 0 0 6.27 0 14c0 9.33 14 22 14 22S28 23.33 28 14C28 6.27 21.73 0 14 0z" fill="#D94646"/><circle cx="14" cy="14" r="6" fill="white" opacity=".9"/></svg></div>',iconSize:[28,36],iconAnchor:[14,36]});
+}
+function mostrarEstadoF(id){
+  ['loc-idle','loc-loading','loc-erro','loc-mapa'].forEach(s=>{document.getElementById(s).style.display=s===id?'':'none'});
+}
+function iniciarMapaForm(lat,lng){
+  mostrarEstadoF('loc-mapa');
+  if(!mFok){
+    mF=L.map('mapa-leaflet',{center:[lat,lng],zoom:18,zoomControl:true});
+    addSatelite(mF);
+    mrkF=L.marker([lat,lng],{icon:iconeForm(),draggable:true,autoPan:true}).addTo(mF);
+    mrkF.on('dragend',()=>{const p=mrkF.getLatLng();atualizarCoordF(p.lat,p.lng)});
+    mF.on('click',e=>{mrkF.setLatLng(e.latlng);atualizarCoordF(e.latlng.lat,e.latlng.lng)});
+    mFok=true;
+  } else {
+    mF.setView([lat,lng],18); mrkF.setLatLng([lat,lng]);
+  }
+  atualizarCoordF(lat,lng);
+  setTimeout(()=>mF.invalidateSize(),150);
+}
+function atualizarCoordF(lat,lng){
+  document.getElementById('inp-lat').value=lat.toFixed(6);
+  document.getElementById('inp-lng').value=lng.toFixed(6);
+  document.getElementById('inp-end').value='Identificando endereço…';
+  document.getElementById('coord-banner').style.display='flex';
+  document.getElementById('coord-txt').textContent=`${lat.toFixed(5)}, ${lng.toFixed(5)} — arraste para ajustar`;
+  clearTimeout(gTimer);
+  gTimer=setTimeout(()=>geocodificar(lat,lng),800);
+}
+async function geocodificar(lat,lng){
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&accept-language=pt-BR`);
+    const d=await r.json(); const a=d.address||{};
+    const p=[a.road||a.pedestrian||'',a.house_number||'',a.suburb||a.neighbourhood||'',a.city||a.town||a.village||'',a.state||''].filter(Boolean);
+    document.getElementById('inp-end').value=p.join(', ')||d.display_name;
+    document.getElementById('tags-via').innerHTML=(a.city||a.town?'<span class="tag"><i class="ti ti-building"></i> Zona urbana</span>':'')+(a.road?'<span class="tag"><i class="ti ti-road"></i> Via identificada</span>':'');
+    document.getElementById('coord-txt').textContent='Localização confirmada — '+(p.join(', ')||'').slice(0,55);
+  }catch(_){document.getElementById('inp-end').value='Endereço não identificado'}
+}
+function usarGPS(){
+  if(!navigator.geolocation){mostrarEstadoF('loc-erro');return}
+  mostrarEstadoF('loc-loading');
+  navigator.geolocation.getCurrentPosition(
+    p=>iniciarMapaForm(p.coords.latitude,p.coords.longitude),
+    ()=>mostrarEstadoF('loc-erro'),
+    {enableHighAccuracy:true,timeout:12000,maximumAge:0}
+  );
+}
+function abrirMapaManual(){iniciarMapaForm(-22.1209,-51.3883)}
+function reposicionarGPS(){
+  if(!navigator.geolocation)return;
+  const btn=event.currentTarget; btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Buscando…';
+  navigator.geolocation.getCurrentPosition(p=>{
+    mF.setView([p.coords.latitude,p.coords.longitude],18);
+    mrkF.setLatLng([p.coords.latitude,p.coords.longitude]);
+    atualizarCoordF(p.coords.latitude,p.coords.longitude);
+    btn.disabled=false; btn.innerHTML='<i class="ti ti-current-location"></i> Reposicionar pelo GPS';
+  },()=>{btn.disabled=false;btn.innerHTML='<i class="ti ti-current-location"></i> Reposicionar pelo GPS'},{enableHighAccuracy:true,timeout:10000});
+}
+
+/* ══════════════════════════════════════
+   MAPA GERAL (visualização de ocorrências)
+══════════════════════════════════════ */
+let mG=null,layerG=null,mrkUser=null,mGok=false,filtroAtual='todos';
+
+function svgInterno(tipo){
+  if(tipo==='buraco') return '<circle cx="10" cy="10" r="5" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 1.8"/>';
+  if(tipo==='afunda') return '<polyline points="5,8 10,13 15,8" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
+  if(tipo==='protu')  return '<polyline points="5,13 10,8 15,13" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
+  return '';
+}
+function criarPin(tipo,status){
+  const c=CORT[tipo]||'#888', b=CORD[status]||'#888';
+  return L.divIcon({
+    className:'',
+    html:`<div style="position:relative;filter:drop-shadow(0 2px 5px rgba(0,0,0,.45));cursor:pointer">
+      <svg width="34" height="42" viewBox="0 0 20 26">
+        <path d="M10 0C4.48 0 0 4.48 0 10c0 6.67 10 16 10 16S20 16.67 20 10C20 4.48 15.52 0 10 0z" fill="${c}"/>
+        <circle cx="10" cy="10" r="7" fill="rgba(0,0,0,.15)"/>
+        ${svgInterno(tipo)}
+      </svg>
+      <div style="position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:${b};border:1.5px solid white"></div>
+    </div>`,
+    iconSize:[34,42],iconAnchor:[17,42],popupAnchor:[0,-44]
+  });
+}
+function popupHTML(oc){
+  const gc=oc.gravidade==='alta'?'#9B2626':oc.gravidade==='media'?'#7A4508':'#0F6E56';
+  return `<div class="popup-card">
+    <div class="popup-header">
+      <div class="popup-tipo">${LTIPO[oc.tipo]}</div>
+      <span class="badge ${BSTATUS[oc.status]}">${LSTATUS[oc.status]}</span>
+    </div>
+    <div class="popup-addr"><svg width="12" height="14" viewBox="0 0 12 14" style="flex-shrink:0"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.5 5 9 5 9s5-5.5 5-9c0-2.76-2.24-5-5-5z" fill="${CORT[oc.tipo]}"/></svg>${oc.endereco}</div>
+    <div class="popup-meta"><span>#${oc.id}</span>·<span>${oc.data}</span>·<span style="color:${gc}">${oc.gravidade.charAt(0).toUpperCase()+oc.gravidade.slice(1)}</span></div>
+    <div class="popup-body">${oc.desc}</div>
+    <div class="popup-footer">
+      <button class="popup-btn" onclick="abrirPainel('${oc.id}',false)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Detalhes
+      </button>
+      <button class="popup-btn primary" onclick="abrirPainel('${oc.id}',true)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar
+      </button>
+    </div>
+  </div>`;
+}
+function renderPins(){
+  layerG.clearLayers();
+  OCS.forEach(oc=>{
+    const ok=filtroAtual==='todos'||
+      (['buraco','afunda','protu'].includes(filtroAtual)&&filtroAtual===oc.tipo)||
+      (['pendente','execucao','resolvido','qualidade'].includes(filtroAtual)&&filtroAtual===oc.status);
+    if(!ok)return;
+    const m=L.marker([oc.lat,oc.lng],{icon:criarPin(oc.tipo,oc.status)});
+    m._ocId=oc.id;
+    m.bindPopup(popupHTML(oc),{maxWidth:290,minWidth:240});
+    m.addTo(layerG);
+  });
+}
+function iniciarMapaGeral(){
+  if(!mGok){
+    mG=L.map('mapa-geral',{center:[-22.1209,-51.3883],zoom:14,zoomControl:true});
+    addSatelite(mG);
+    layerG=L.layerGroup().addTo(mG);
+    mGok=true;
+    obterLocUsuario();
+  }
+  renderPins();
+  setTimeout(()=>mG.invalidateSize(),150);
+}
+function obterLocUsuario(){
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(p=>{
+    const {latitude:lat,longitude:lng}=p.coords;
+    if(mrkUser)mG.removeLayer(mrkUser);
+    mrkUser=L.marker([lat,lng],{
+      icon:L.divIcon({className:'',html:`
+        <div style="position:relative;width:22px;height:22px">
+          <div style="position:absolute;inset:0;border-radius:50%;background:rgba(26,106,184,.25);animation:pulse 2s ease-in-out infinite"></div>
+          <div style="position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#1A6AB8;border:2.5px solid white;box-shadow:0 2px 4px rgba(0,0,0,.3)"></div>
+        </div>`,iconSize:[22,22],iconAnchor:[11,11]})
+    }).addTo(mG);
+    mrkUser.bindPopup(`<div style="padding:8px;font-size:12px;font-family:inherit"><strong>Você está aqui</strong><br><span style="color:#9c9a92;font-size:11px">${lat.toFixed(5)}, ${lng.toFixed(5)}</span></div>`);
+    mG.setView([lat,lng],15);
+  },()=>{},{enableHighAccuracy:true,timeout:10000});
+}
+function centralizarUsuario(){
+  if(!mGok){iniciarMapaGeral();return}
+  if(mrkUser){mG.setView(mrkUser.getLatLng(),17);mrkUser.openPopup();return}
+  obterLocUsuario();
+}
+function filtroMapa(tipo,el){
+  filtroAtual=tipo;
+  document.querySelectorAll('.mapa-toolbar .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  if(mGok)renderPins();
+}
+
+/* ══════════════════════════════════════
+   PAINEL LATERAL
+══════════════════════════════════════ */
+let _pid=null;
+
+function abrirPainel(id,editar){
+  const oc=OCS.find(o=>o.id===id); if(!oc)return;
+  _pid=id;
+  if(mG)mG.closePopup();
+
+  document.getElementById('p-tipo').innerHTML  =`<span class="badge b-${oc.tipo}">${LTIPO[oc.tipo]}</span>`;
+  document.getElementById('p-status').innerHTML=`<span class="badge ${BSTATUS[oc.status]}">${LSTATUS[oc.status]}</span>`;
+  document.getElementById('p-proto').textContent='#'+oc.id;
+  document.getElementById('p-end').textContent  =oc.endereco;
+  document.getElementById('p-coords').textContent=`${oc.lat.toFixed(5)}, ${oc.lng.toFixed(5)}`;
+  document.getElementById('p-grav').textContent  =GRAV[oc.gravidade]||oc.gravidade;
+  document.getElementById('p-data').textContent  =oc.data;
+  document.getElementById('p-den').textContent   =oc.denunciante;
+  document.getElementById('p-desc').textContent  =oc.desc;
+  document.getElementById('p-sel-status').value  =oc.status;
+  document.getElementById('p-edit').style.display=editar?'':'none';
+
+  document.getElementById('side-panel').classList.add('open');
+  document.getElementById('panel-overlay').classList.add('show');
+}
+function fecharPainel(){
+  document.getElementById('side-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('show');
+  _pid=null;
+}
+function centralizarPin(){
+  const oc=OCS.find(o=>o.id===_pid); if(!oc||!mG)return;
+  mG.setView([oc.lat,oc.lng],18); fecharPainel();
+}
+function salvarPainel(){
+  const oc=OCS.find(o=>o.id===_pid); if(!oc)return;
+  oc.status=document.getElementById('p-sel-status').value;
+  layerG.eachLayer(m=>{
+    if(m._ocId===oc.id){m.setIcon(criarPin(oc.tipo,oc.status));m.setPopupContent(popupHTML(oc))}
+  });
+  document.getElementById('p-status').innerHTML=`<span class="badge ${BSTATUS[oc.status]}">${LSTATUS[oc.status]}</span>`;
+  fecharPainel();
+  const t=document.getElementById('toast');
+  t.textContent=`✓ #${oc.id} → ${LSTATUS[oc.status]}`;
+  t.style.display='block';
+  setTimeout(()=>t.style.display='none',3000);
+}
+</script>
+</body>
+</html>
