@@ -7,10 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-/* ── RESET ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
-/* ── TOKENS LIGHT ── */
 :root{
   --bg0:#fff;--bg1:#f5f4f0;--bg2:#eeede8;
   --tx0:#1c1c1a;--tx1:#6b6a64;--tx2:#9c9a92;
@@ -26,7 +23,6 @@
   --r1:6px;--r2:8px;--r3:12px;
   --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 }
-/* ── TOKENS DARK ── */
 @media(prefers-color-scheme:dark){:root{
   --bg0:#1e1e1c;--bg1:#272724;--bg2:#2e2e2b;
   --tx0:#e2e0d8;--tx1:#9c9a92;--tx2:#6b6a64;
@@ -40,12 +36,8 @@
   --ta-bg:rgba(220,140,16,.15);--ta-bd:#D88A10;--ta-tx:#F5C46A;--ta-ic:#F5BE5C;
   --tp-bg:rgba(46,126,196,.15);--tp-bd:#2E7EC4;--tp-tx:#9DC8F0;--tp-ic:#7DB8F0;
 }}
-
-/* ── BASE ── */
 html{font-size:16px;scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:100vh}
-
-/* ── HEADER ── */
 .app-header{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:0 20px;position:sticky;top:0;z-index:200}
 .app-title{display:flex;align-items:center;gap:10px;padding:14px 0 0;font-size:15px;font-weight:500}
 .app-title i{font-size:20px;color:var(--cd)}
@@ -54,25 +46,17 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .tab-btn{flex-shrink:0;font-size:13px;padding:7px 14px 10px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--tx1);cursor:pointer;display:flex;align-items:center;gap:6px;transition:color .15s;white-space:nowrap}
 .tab-btn:hover{color:var(--tx0)}
 .tab-btn.active{color:var(--ci);border-bottom-color:var(--ci);font-weight:500}
-
-/* ── BODY / SCREENS ── */
 .app-body{max-width:720px;margin:0 auto;padding:20px 16px 60px}
 .screen{display:none}
 .screen.active{display:block}
-
-/* ── MAPA GERAL — full-height ── */
 #s-mapa.active{display:flex;flex-direction:column;height:calc(100vh - 90px);padding:0;max-width:100%}
 .mapa-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden}
 .mapa-toolbar{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0;z-index:10}
 #mapa-geral{flex:1;z-index:1}
 .mapa-legenda{background:var(--bg0);border-top:.5px solid var(--bd0);padding:8px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;flex-shrink:0;z-index:10}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx1)}
-
-/* ── CARD / SECTION ── */
 .card{background:var(--bg0);border:.5px solid var(--bd0);border-radius:var(--r3);padding:16px 18px;margin-bottom:12px}
 .sec{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx1);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-
-/* ── FORM ── */
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .row2 .full{grid-column:1/-1}
 .field{display:flex;flex-direction:column;gap:4px}
@@ -80,8 +64,6 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .field input,.field textarea,.field select{font-size:13px;padding:8px 10px;border:.5px solid var(--bd1);border-radius:var(--r2);background:var(--bg1);color:var(--tx0);width:100%;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
 .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--ci);box-shadow:0 0 0 3px rgba(55,138,221,.12)}
 .field textarea{resize:vertical;min-height:72px}
-
-/* ── TIPO ── */
 .tipo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .tipo-card{border:1px solid var(--bd1);border-radius:var(--r2);padding:14px 8px 12px;text-align:center;cursor:pointer;background:var(--bg1);transition:border-color .15s,background .15s;user-select:none}
 .tipo-card:hover{border-color:var(--bd2)}
@@ -97,48 +79,45 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .tipo-card.sel-protu{background:var(--tp-bg);border:2px solid var(--tp-bd)}
 .tipo-card.sel-protu .tipo-icon i{color:var(--tp-ic)}
 .tipo-card.sel-protu .tipo-name{color:var(--tp-tx)}
-
-/* ── REPARO FLAG ── */
 .reparo-flag{display:none;align-items:flex-start;gap:10px;background:var(--bgw);border:.5px solid var(--bdw);border-radius:var(--r2);padding:12px;margin-bottom:12px;font-size:12px;color:var(--cw);line-height:1.6}
 .reparo-flag.show{display:flex}
 .reparo-flag i{font-size:18px;flex-shrink:0;margin-top:2px}
 .proto-wrap{display:none;margin-top:8px}
 .proto-wrap.show{display:block}
-
-/* ── GRAVIDADE ── */
 .sev-row{display:flex;gap:6px;margin-top:6px}
 .sev-btn{flex:1;padding:8px 4px;border-radius:var(--r2);border:.5px solid var(--bd1);font-size:12px;font-weight:500;text-align:center;cursor:pointer;background:transparent;color:var(--tx1);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
 .sev-btn.sel-low{border:1.5px solid var(--bds);color:var(--cs);background:var(--bgs)}
 .sev-btn.sel-med{border:1.5px solid var(--bdw);color:var(--cw);background:var(--bgw)}
 .sev-btn.sel-high{border:1.5px solid var(--bdd);color:var(--cd);background:var(--bgd)}
-
-/* ── FOTOS ── */
-.photo-area{display:flex;gap:10px;align-items:flex-start}
-.photo-box{width:76px;height:76px;border:1px dashed var(--bd1);border-radius:var(--r2);background:var(--bg1);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--tx1);cursor:pointer;flex-shrink:0;gap:3px;transition:border-color .15s}
-.photo-box:hover{border-color:var(--bd2)}
-.photo-box i{font-size:20px}
-.photo-hint{font-size:12px;color:var(--tx1);line-height:1.6}
-
-/* ── BOTÕES ── */
+/* Fotos com preview */
+.fotos-grid{display:flex;gap:10px;margin-bottom:10px}
+.foto-slot{position:relative;width:80px;height:80px;flex-shrink:0}
+.foto-slot label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%;height:100%;border:1px dashed var(--bd1);border-radius:var(--r2);background:var(--bg1);cursor:pointer;font-size:11px;color:var(--tx1);transition:border-color .15s;overflow:hidden}
+.foto-slot label:hover{border-color:var(--bd2)}
+.foto-slot label i{font-size:22px}
+.foto-slot input[type=file]{display:none}
+.foto-slot .foto-preview{position:absolute;inset:0;border-radius:var(--r2);background-size:cover;background-position:center;display:none}
+.foto-slot .foto-preview.show{display:block}
+.foto-slot .foto-ok{position:absolute;inset:0;background:rgba(0,0,0,.3);border-radius:var(--r2);display:none;align-items:center;justify-content:center}
+.foto-slot .foto-ok.show{display:flex}
+.photo-hint{font-size:12px;color:var(--tx1);line-height:1.6;flex:1}
 .btn-primary{width:100%;padding:11px;border-radius:var(--r2);border:none;background:#1A6AB8;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;margin-top:10px}
 .btn-primary:hover{background:#0E4D8B}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
 .act-btn{flex:1;padding:9px;border-radius:var(--r2);border:.5px solid var(--bd1);font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--tx0);display:flex;align-items:center;justify-content:center;gap:5px;transition:background .12s}
 .act-btn:hover{background:var(--bg1)}
 .act-btn.primary{background:#1A6AB8;color:#fff;border-color:transparent}
 .act-btn.primary:hover{background:#0E4D8B}
 .act-btn.success{background:#0F6E56;color:#fff;border-color:transparent}
 .act-btn.success:hover{background:#085041}
+.act-btn:disabled{opacity:.5;cursor:not-allowed}
 .action-row{display:flex;gap:8px;margin-top:12px}
-
-/* ── ESTATÍSTICAS ── */
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
 .stat-card{background:var(--bg1);border-radius:var(--r2);padding:12px 14px}
 .stat-num{font-size:22px;font-weight:500}
 .stat-lbl{font-size:11px;color:var(--tx1);margin-top:2px}
 .type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .type-card{background:var(--bg1);border-radius:0 var(--r2) var(--r2) 0;padding:10px 12px;border-left:3px solid transparent}
-
-/* ── BADGES ── */
 .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
 .b-pend{background:var(--bgw);color:var(--cw)}
 .b-prog{background:var(--bgi);color:var(--ci)}
@@ -148,24 +127,18 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .b-buraco{background:var(--bgd);color:var(--cd)}
 .b-afunda{background:var(--bgw);color:var(--cw)}
 .b-protu{background:var(--bgi);color:var(--ci)}
-
-/* ── CHIPS / TAGS ── */
 .tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--bg1);color:var(--tx1);border:.5px solid var(--bd0);display:inline-block}
 .filter-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
 .chip{font-size:11px;padding:4px 10px;border-radius:20px;border:.5px solid var(--bd1);background:transparent;color:var(--tx1);cursor:pointer;transition:all .15s}
 .chip.on{background:var(--bgi);color:var(--ci);border-color:var(--bdi)}
-
-/* ── LISTA ── */
 .report-list{display:flex;flex-direction:column;gap:6px}
 .report-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:.5px solid var(--bd0);border-radius:var(--r2);background:var(--bg0);cursor:pointer;transition:background .12s}
 .report-item:hover{background:var(--bg1)}
-.rphoto{width:44px;height:44px;border-radius:8px;background:var(--bg1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rphoto{width:44px;height:44px;border-radius:8px;background:var(--bg1);display:flex;align-items:center;justify-content:center;flex-shrink:0;background-size:cover;background-position:center;overflow:hidden}
 .rphoto i{font-size:20px}
 .rinfo{flex:1;min-width:0}
 .raddr{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rmeta{font-size:11px;color:var(--tx1);margin-top:3px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-
-/* ── DETALHE ── */
 .back-btn{font-size:13px;color:var(--ci);background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;margin-bottom:12px;padding:0}
 .resolved-banner{background:var(--bgs);border:.5px solid var(--bds);border-radius:var(--r2);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .resolved-banner i{font-size:22px;color:var(--cs);flex-shrink:0}
@@ -174,7 +147,7 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .before-after{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .ba-box{border-radius:var(--r2);overflow:hidden;border:.5px solid var(--bd0)}
 .ba-label{font-size:11px;font-weight:500;padding:6px 10px;display:flex;align-items:center;gap:5px}
-.ba-photo{height:104px;display:flex;align-items:center;justify-content:center;background:var(--bg1)}
+.ba-photo{height:120px;display:flex;align-items:center;justify-content:center;background:var(--bg1);background-size:cover;background-position:center}
 .ba-photo i{font-size:34px}
 .ba-before .ba-label{background:var(--bgd);color:var(--cd)}
 .ba-after  .ba-label{background:var(--bgs);color:var(--cs)}
@@ -200,8 +173,6 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .info-box{background:var(--bg1);border-radius:var(--r2);padding:8px 12px;font-size:12px;color:var(--tx1);line-height:1.5}
 .resolve-header{background:var(--bgs);border:.5px solid var(--bds);border-radius:var(--r3);padding:14px 18px;margin-bottom:12px}
 .link{color:var(--ci);cursor:pointer;text-decoration:underline}
-
-/* ── MAPA FORM ── */
 #mapa-leaflet{height:260px;border-radius:var(--r2);border:.5px solid var(--bd0);margin-bottom:10px}
 .map-estado{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px 16px;background:var(--bg1);border-radius:var(--r2);border:.5px solid var(--bd0);margin-bottom:10px;text-align:center}
 .map-estado i{font-size:28px;color:var(--tx1)}
@@ -214,8 +185,11 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .btn-repo:hover{background:var(--bg1)}
 .coord-banner{display:flex;align-items:center;gap:8px;background:var(--bgs);border:.5px solid var(--bds);border-radius:var(--r2);padding:8px 12px;font-size:12px;color:var(--cs);margin-bottom:10px}
 .map-hint-strip{font-size:11px;color:var(--tx1);background:var(--bg1);border-radius:var(--r2);padding:6px 10px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-
-/* ── POPUP MAPA GERAL ── */
+/* loading overlay */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;font-size:14px}
+.loading-overlay.show{display:flex}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
+/* popup */
 .leaflet-popup-content-wrapper{border-radius:12px!important;font-family:inherit!important;padding:0!important;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.2)!important;border:none!important;min-width:240px}
 .leaflet-popup-content{margin:0!important;width:auto!important}
 .leaflet-popup-tip-container{margin-top:-1px}
@@ -225,30 +199,27 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .popup-body{font-size:12px;color:#6b6a64;line-height:1.5;margin-bottom:10px}
 .popup-addr{font-size:12px;font-weight:500;color:#1c1c1a;margin-bottom:4px;display:flex;align-items:center;gap:5px}
 .popup-meta{font-size:11px;color:#9c9a92;margin-bottom:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.popup-foto{width:100%;height:80px;border-radius:6px;margin-bottom:10px;background-size:cover;background-position:center;background-color:#eee;display:none}
 .popup-footer{display:flex;gap:6px}
 .popup-btn{flex:1;padding:7px 0;border-radius:6px;border:.5px solid rgba(0,0,0,.15);font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:#1c1c1a;display:flex;align-items:center;justify-content:center;gap:5px}
 .popup-btn.primary{background:#1A6AB8;color:#fff;border-color:transparent}
-
-/* ── PAINEL LATERAL ── */
+/* painel lateral */
 .side-panel{position:fixed;top:0;right:-400px;width:360px;height:100vh;background:var(--bg0);border-left:.5px solid var(--bd0);z-index:9000;transition:right .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:-6px 0 24px rgba(0,0,0,.12)}
 .side-panel.open{right:0}
 .panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:8999;display:none;backdrop-filter:blur(1px)}
 .panel-overlay.show{display:block}
 .panel-header{position:sticky;top:0;background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:14px 18px;display:flex;align-items:center;gap:8px;z-index:1}
-.panel-close{margin-left:auto;background:transparent;border:none;font-size:22px;color:var(--tx1);cursor:pointer;line-height:1;padding:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.panel-close{margin-left:auto;background:transparent;border:none;font-size:22px;color:var(--tx1);cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
 .panel-close:hover{background:var(--bg1)}
 .panel-body{padding:16px 18px}
 .panel-sec{margin-bottom:16px;padding-bottom:16px;border-bottom:.5px solid var(--bd0)}
 .panel-sec:last-child{border-bottom:none;margin-bottom:0}
-
-/* ── TOAST ── */
+/* config banner */
+.config-banner{background:#FEF3C7;border:.5px solid #D97706;border-radius:var(--r2);padding:12px 14px;margin-bottom:16px;font-size:12px;color:#92400E;line-height:1.6;display:flex;gap:8px}
+.config-banner i{font-size:18px;flex-shrink:0;margin-top:1px}
 #toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1c1a;color:#e2e0d8;padding:10px 20px;border-radius:var(--r2);font-size:13px;z-index:9999;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.3)}
-
-/* ── ANIMAÇÕES ── */
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
-
-/* ── RESPONSIVE ── */
 @media(max-width:520px){
   .stat-grid{grid-template-columns:repeat(2,1fr)}
   .type-grid{grid-template-columns:1fr}
@@ -260,7 +231,12 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 </head>
 <body>
 
-<!-- ══ CABEÇALHO ══ -->
+<!-- loading overlay global -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <span id="loading-txt">Salvando…</span>
+</div>
+
 <header class="app-header">
   <div class="app-title">
     <i class="ti ti-road-off"></i>
@@ -270,7 +246,6 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
     <button class="tab-btn active" onclick="go('form')"><i class="ti ti-alert-triangle"></i> Denunciar</button>
     <button class="tab-btn" onclick="go('mapa')"><i class="ti ti-map"></i> Mapa geral</button>
     <button class="tab-btn" onclick="go('painel')"><i class="ti ti-layout-dashboard"></i> Painel</button>
-    <button class="tab-btn" onclick="go('detalhe')"><i class="ti ti-file-description"></i> Ocorrência</button>
     <button class="tab-btn" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Resolução</button>
   </nav>
 </header>
@@ -279,6 +254,19 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 
 <!-- ══ TELA 1 — FORMULÁRIO ══ -->
 <section id="s-form" class="screen active">
+
+  <!-- banner de configuração — some após configurar Firebase -->
+  <div class="config-banner" id="cfg-banner">
+    <i class="ti ti-settings"></i>
+    <div>
+      <strong>Configure Firebase e ImgBB antes de usar.</strong><br>
+      1. Cole as chaves do Firebase no objeto <code>firebaseConfig</code>.<br>
+      2. Cole sua chave do ImgBB em <code>IMGBB_KEY</code>.<br>
+      <a class="link" href="https://console.firebase.google.com" target="_blank">Firebase Console →</a>
+      &nbsp;|&nbsp;
+      <a class="link" href="https://api.imgbb.com" target="_blank">ImgBB API key →</a>
+    </div>
+  </div>
 
   <div class="card">
     <div class="sec"><i class="ti ti-road"></i> Tipo de ocorrência</div>
@@ -309,14 +297,19 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
           <label for="chk-reparo" style="font-size:12px;cursor:pointer;color:var(--cw)">Sim, é resultado de reparo anterior</label>
         </div>
         <div class="proto-wrap" id="proto-wrap">
-          <input type="text" placeholder="Nº do protocolo anterior (ex: 2024-0045)" style="font-size:12px;border-color:var(--bdw);background:var(--bg0);margin-top:4px">
+          <input id="inp-proto-ant" type="text" placeholder="Nº protocolo anterior (ex: 2024-0045)" style="font-size:12px;border-color:var(--bdw);background:var(--bg0);margin-top:4px">
         </div>
       </div>
     </div>
     <div class="row2">
       <div class="field full">
         <label>Dimensão estimada</label>
-        <select><option>Pequeno – até 20 cm</option><option>Médio – 20 a 60 cm</option><option>Grande – acima de 60 cm</option><option>Extenso – vários metros</option></select>
+        <select id="sel-dimensao">
+          <option value="pequeno">Pequeno – até 20 cm</option>
+          <option value="medio">Médio – 20 a 60 cm</option>
+          <option value="grande">Grande – acima de 60 cm</option>
+          <option value="extenso">Extenso – vários metros</option>
+        </select>
       </div>
     </div>
   </div>
@@ -357,45 +350,81 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
       </div>
     </div>
     <div class="row2" style="margin-top:10px">
-      <div class="field"><label>Tipo de via</label><select><option>Pista de rolamento</option><option>Acostamento</option><option>Calçada</option><option>Ciclovia</option></select></div>
-      <div class="field"><label>Fluxo de tráfego</label><select><option>Alto (avenida principal)</option><option>Médio (rua local)</option><option>Baixo (rua de acesso)</option></select></div>
+      <div class="field"><label>Tipo de via</label>
+        <select id="sel-via"><option value="pista">Pista de rolamento</option><option value="acostamento">Acostamento</option><option value="calcada">Calçada</option><option value="ciclovia">Ciclovia</option></select>
+      </div>
+      <div class="field"><label>Fluxo de tráfego</label>
+        <select id="sel-fluxo"><option value="alto">Alto (avenida principal)</option><option value="medio">Médio (rua local)</option><option value="baixo">Baixo (rua de acesso)</option></select>
+      </div>
     </div>
   </div>
 
   <div class="card">
     <div class="sec"><i class="ti ti-camera"></i> Fotos</div>
-    <div class="photo-area">
-      <div class="photo-box" onclick="addFoto(this)"><i class="ti ti-camera"></i><span>Foto 1 *</span></div>
-      <div class="photo-box" style="opacity:.5" onclick="addFoto(this)"><i class="ti ti-plus"></i><span>Foto 2</span></div>
-      <div class="photo-hint">Ao menos 1 foto obrigatória.<br><strong style="color:var(--tx0)">Dica:</strong> inclua objeto de referência para dimensionar.<br><span style="color:var(--tx2)">Máx. 3 fotos · JPG/PNG · 10 MB</span></div>
+    <div class="fotos-grid">
+      <div class="foto-slot" id="slot-1">
+        <label for="foto-1">
+          <i class="ti ti-camera"></i>
+          <span>Foto 1 *</span>
+        </label>
+        <input type="file" id="foto-1" accept="image/*" capture="environment" onchange="selecionarFoto(1,this)">
+        <div class="foto-preview" id="prev-1"></div>
+        <div class="foto-ok" id="ok-1"><i class="ti ti-check" style="color:white;font-size:22px"></i></div>
+      </div>
+      <div class="foto-slot" id="slot-2" style="opacity:.5">
+        <label for="foto-2">
+          <i class="ti ti-plus"></i>
+          <span>Foto 2</span>
+        </label>
+        <input type="file" id="foto-2" accept="image/*" capture="environment" onchange="selecionarFoto(2,this)">
+        <div class="foto-preview" id="prev-2"></div>
+        <div class="foto-ok" id="ok-2"><i class="ti ti-check" style="color:white;font-size:22px"></i></div>
+      </div>
+      <div class="foto-slot" id="slot-3" style="opacity:.5">
+        <label for="foto-3">
+          <i class="ti ti-plus"></i>
+          <span>Foto 3</span>
+        </label>
+        <input type="file" id="foto-3" accept="image/*" capture="environment" onchange="selecionarFoto(3,this)">
+        <div class="foto-preview" id="prev-3"></div>
+        <div class="foto-ok" id="ok-3"><i class="ti ti-check" style="color:white;font-size:22px"></i></div>
+      </div>
+      <div class="photo-hint">
+        Ao menos 1 foto obrigatória.<br>
+        <strong style="color:var(--tx0)">Dica:</strong> inclua objeto de referência para dimensionar.<br>
+        <span style="color:var(--tx2)">JPG/PNG · 10 MB cada</span>
+      </div>
     </div>
   </div>
 
   <div class="card">
     <div class="sec"><i class="ti ti-clipboard-text"></i> Descrição e gravidade</div>
-    <div class="field" style="margin-bottom:12px"><label>Descreva a ocorrência</label><textarea placeholder="Dimensão estimada, há quanto tempo está assim, se já causou acidentes…"></textarea></div>
+    <div class="field" style="margin-bottom:12px">
+      <label>Descreva a ocorrência</label>
+      <textarea id="inp-desc" placeholder="Dimensão estimada, há quanto tempo está assim, se já causou acidentes…"></textarea>
+    </div>
     <label style="font-size:12px;color:var(--tx1)">Gravidade / risco</label>
     <div class="sev-row">
-      <button class="sev-btn" onclick="selSev(this,'low')"><i class="ti ti-circle" style="color:var(--cs)"></i> Baixa</button>
-      <button class="sev-btn sel-med" onclick="selSev(this,'med')"><i class="ti ti-circle" style="color:var(--cw)"></i> Média</button>
-      <button class="sev-btn" onclick="selSev(this,'high')"><i class="ti ti-circle" style="color:var(--cd)"></i> Alta</button>
+      <button class="sev-btn" data-lv="baixa" onclick="selSev(this)"><i class="ti ti-circle" style="color:var(--cs)"></i> Baixa</button>
+      <button class="sev-btn sel-med" data-lv="media" onclick="selSev(this)"><i class="ti ti-circle" style="color:var(--cw)"></i> Média</button>
+      <button class="sev-btn" data-lv="alta" onclick="selSev(this)"><i class="ti ti-circle" style="color:var(--cd)"></i> Alta</button>
     </div>
   </div>
 
   <div class="card">
     <div class="sec"><i class="ti ti-user"></i> Seus dados</div>
     <div class="row2">
-      <div class="field"><label>Nome completo</label><input type="text" placeholder="João da Silva"></div>
-      <div class="field"><label>CPF</label><input type="text" placeholder="000.000.000-00"></div>
-      <div class="field"><label>Telefone / WhatsApp</label><input type="tel" placeholder="(18) 99999-0000"></div>
-      <div class="field"><label>E-mail</label><input type="email" placeholder="joao@email.com"></div>
+      <div class="field"><label>Nome completo</label><input id="inp-nome" type="text" placeholder="João da Silva"></div>
+      <div class="field"><label>CPF</label><input id="inp-cpf" type="text" placeholder="000.000.000-00"></div>
+      <div class="field"><label>Telefone / WhatsApp</label><input id="inp-tel" type="tel" placeholder="(18) 99999-0000"></div>
+      <div class="field"><label>E-mail</label><input id="inp-email" type="email" placeholder="joao@email.com"></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx1);margin-bottom:10px">
       <input type="checkbox" id="anon" style="width:auto;cursor:pointer">
       <label for="anon" style="cursor:pointer">Denúncia anônima – meus dados não serão exibidos publicamente</label>
     </div>
     <div class="info-box" style="margin-bottom:4px"><i class="ti ti-clock"></i> Após o envio você receberá um <strong style="color:var(--tx0)">número de protocolo</strong> por e-mail/SMS.</div>
-    <button class="btn-primary" onclick="enviarDenuncia()"><i class="ti ti-send"></i> Enviar denúncia</button>
+    <button class="btn-primary" id="btn-enviar" onclick="enviarDenuncia()"><i class="ti ti-send"></i> Enviar denúncia</button>
   </div>
 
 </section>
@@ -406,33 +435,25 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
   <div class="mapa-wrap">
     <div class="mapa-toolbar">
       <button class="chip on" onclick="filtroMapa('todos',this)">Todos</button>
-      <button class="chip" onclick="filtroMapa('buraco',this)">
-        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D94646;margin-right:2px;vertical-align:middle"></span>Buracos
-      </button>
-      <button class="chip" onclick="filtroMapa('afunda',this)">
-        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D88A10;margin-right:2px;vertical-align:middle"></span>Afundamentos
-      </button>
-      <button class="chip" onclick="filtroMapa('protu',this)">
-        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2E7EC4;margin-right:2px;vertical-align:middle"></span>Protuberâncias
-      </button>
+      <button class="chip" onclick="filtroMapa('buraco',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D94646;margin-right:2px;vertical-align:middle"></span>Buracos</button>
+      <button class="chip" onclick="filtroMapa('afunda',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D88A10;margin-right:2px;vertical-align:middle"></span>Afundamentos</button>
+      <button class="chip" onclick="filtroMapa('protu',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2E7EC4;margin-right:2px;vertical-align:middle"></span>Protuberâncias</button>
       <button class="chip" onclick="filtroMapa('pendente',this)">⏳ Pendentes</button>
       <button class="chip" onclick="filtroMapa('resolvido',this)">✓ Resolvidos</button>
-      <button class="btn-gps" style="margin-left:auto;padding:6px 12px;font-size:12px" onclick="centralizarUsuario()">
-        <i class="ti ti-current-location"></i> Minha localização
-      </button>
+      <button class="btn-gps" style="margin-left:auto;padding:6px 12px;font-size:12px" onclick="centralizarUsuario()"><i class="ti ti-current-location"></i> Minha localização</button>
     </div>
     <div id="mapa-geral"></div>
     <div class="mapa-legenda">
       <span style="font-size:11px;font-weight:600;color:var(--tx1)">LEGENDA:</span>
-      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#D94646"/><circle cx="9" cy="9" r="4" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="2.5 1.5"/></svg> Buraco</span>
-      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#D88A10"/><polyline points="5,8 9,12 13,8" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Afundamento</span>
-      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#2E7EC4"/><polyline points="5,11 9,7 13,11" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Protuberância</span>
+      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#D94646"/><circle cx="9" cy="9" r="4" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="2.5 1.5"/></svg>Buraco</span>
+      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#D88A10"/><polyline points="5,8 9,12 13,8" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Afundamento</span>
+      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#2E7EC4"/><polyline points="5,11 9,7 13,11" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Protuberância</span>
       <span class="leg-item" style="gap:8px">
         <span style="width:10px;height:10px;border-radius:50%;border:2px solid #D88A10;display:inline-block"></span>Pendente
         <span style="width:10px;height:10px;border-radius:50%;border:2px solid #1A6AB8;display:inline-block"></span>Em execução
         <span style="width:10px;height:10px;border-radius:50%;border:2px solid #0F6E56;display:inline-block"></span>Resolvido
       </span>
-      <span class="leg-item"><span style="width:10px;height:10px;border-radius:50%;background:#1A6AB8;display:inline-block"></span> Você aqui</span>
+      <span class="leg-item"><span style="width:10px;height:10px;border-radius:50%;background:#1A6AB8;display:inline-block"></span>Você aqui</span>
     </div>
   </div>
 </section>
@@ -441,144 +462,88 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 <!-- ══ TELA 3 — PAINEL ══ -->
 <section id="s-painel" class="screen">
   <div class="stat-grid">
-    <div class="stat-card"><div class="stat-num">247</div><div class="stat-lbl">Total</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--cw)">89</div><div class="stat-lbl">Pendentes</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--ci)">63</div><div class="stat-lbl">Em execução</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--cs)">95</div><div class="stat-lbl">Resolvidas</div></div>
+    <div class="stat-card"><div class="stat-num" id="cnt-total">—</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-card"><div class="stat-num" id="cnt-pend" style="color:var(--cw)">—</div><div class="stat-lbl">Pendentes</div></div>
+    <div class="stat-card"><div class="stat-num" id="cnt-exec" style="color:var(--ci)">—</div><div class="stat-lbl">Em execução</div></div>
+    <div class="stat-card"><div class="stat-num" id="cnt-res" style="color:var(--cs)">—</div><div class="stat-lbl">Resolvidas</div></div>
   </div>
   <div class="type-grid">
-    <div class="type-card" style="border-left-color:#D94646"><div style="font-size:16px;font-weight:500;color:var(--cd)">142</div><div style="font-size:11px;color:var(--tx1)">Buracos</div></div>
-    <div class="type-card" style="border-left-color:#D88A10"><div style="font-size:16px;font-weight:500;color:var(--cw)">68</div><div style="font-size:11px;color:var(--tx1)">Afundamentos</div></div>
-    <div class="type-card" style="border-left-color:#2E7EC4"><div style="font-size:16px;font-weight:500;color:var(--ci)">37</div><div style="font-size:11px;color:var(--tx1)">Protuberâncias</div></div>
+    <div class="type-card" style="border-left-color:#D94646"><div class="stat-num" id="cnt-buraco" style="font-size:16px;color:var(--cd)">—</div><div style="font-size:11px;color:var(--tx1)">Buracos</div></div>
+    <div class="type-card" style="border-left-color:#D88A10"><div class="stat-num" id="cnt-afunda" style="font-size:16px;color:var(--cw)">—</div><div style="font-size:11px;color:var(--tx1)">Afundamentos</div></div>
+    <div class="type-card" style="border-left-color:#2E7EC4"><div class="stat-num" id="cnt-protu" style="font-size:16px;color:var(--ci)">—</div><div style="font-size:11px;color:var(--tx1)">Protuberâncias</div></div>
   </div>
   <div class="card" style="padding-bottom:10px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
       <div class="sec" style="margin:0">Ocorrências recentes</div>
       <button class="act-btn" style="flex:none;font-size:11px;padding:5px 10px" onclick="go('mapa')"><i class="ti ti-map"></i> Ver no mapa</button>
     </div>
-    <div class="filter-row">
-      <button class="chip on" onclick="filtrar(this)">Todas</button>
-      <button class="chip" onclick="filtrar(this)">Buracos</button>
-      <button class="chip" onclick="filtrar(this)">Afundamentos</button>
-      <button class="chip" onclick="filtrar(this)">Protuberâncias</button>
-      <button class="chip" onclick="filtrar(this)">Reparo mal feito</button>
-    </div>
-    <div class="report-list">
-      <div class="report-item" onclick="go('detalhe')">
-        <div class="rphoto"><i class="ti ti-circle-dashed" style="color:var(--cd)"></i></div>
-        <div class="rinfo"><div class="raddr">Av. Cel. José Soares Marcondes, 2100</div><div class="rmeta"><span class="badge b-buraco">Buraco</span>#2024-0089 · Alta</div></div>
-        <span class="badge b-pend">Pendente</span>
-      </div>
-      <div class="report-item" onclick="go('detalhe')">
-        <div class="rphoto"><i class="ti ti-trending-down" style="color:var(--cw)"></i></div>
-        <div class="rinfo"><div class="raddr">Rua Manoel Goulart, 450</div><div class="rmeta"><span class="badge b-afunda">Afundamento</span>Reparo anterior</div></div>
-        <span class="badge b-qual">Qualidade</span>
-      </div>
-      <div class="report-item" onclick="go('detalhe')">
-        <div class="rphoto"><i class="ti ti-trending-up" style="color:var(--ci)"></i></div>
-        <div class="rinfo"><div class="raddr">Rua Sete de Setembro, 830</div><div class="rmeta"><span class="badge b-protu">Protuberância</span>Reparo anterior</div></div>
-        <span class="badge b-prog">Em execução</span>
-      </div>
-      <div class="report-item" onclick="go('detalhe')">
-        <div class="rphoto"><i class="ti ti-circle-dashed" style="color:var(--cd)"></i></div>
-        <div class="rinfo"><div class="raddr">Av. Brasil, 1200</div><div class="rmeta"><span class="badge b-buraco">Buraco</span>Média</div></div>
-        <span class="badge b-done">Resolvido</span>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="sec"><i class="ti ti-chart-bar"></i> Por gravidade</div>
-    <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
-      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Alta</span><span style="color:var(--cd)">72 (29%)</span></div><div style="background:var(--bg1);border-radius:20px;height:6px;overflow:hidden"><div style="width:29%;height:100%;background:#D94646;border-radius:20px"></div></div></div>
-      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Média</span><span style="color:var(--cw)">108 (44%)</span></div><div style="background:var(--bg1);border-radius:20px;height:6px;overflow:hidden"><div style="width:44%;height:100%;background:#D88A10;border-radius:20px"></div></div></div>
-      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Baixa</span><span style="color:var(--cs)">67 (27%)</span></div><div style="background:var(--bg1);border-radius:20px;height:6px;overflow:hidden"><div style="width:27%;height:100%;background:#1D9E75;border-radius:20px"></div></div></div>
+    <div class="report-list" id="painel-lista">
+      <div style="text-align:center;padding:24px;color:var(--tx1);font-size:13px"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Carregando…</div>
     </div>
   </div>
 </section>
 
 
-<!-- ══ TELA 4 — DETALHE ══ -->
-<section id="s-detalhe" class="screen">
-  <button class="back-btn" onclick="go('painel')"><i class="ti ti-arrow-left"></i> Voltar ao painel</button>
-  <div class="resolved-banner"><i class="ti ti-circle-check"></i><div><div class="rb-title">Ocorrência resolvida</div><div class="rb-sub">Concluído em 29/05/2024 às 16:40 · Construtora Exemplo Ltda</div></div><span class="badge b-done" style="margin-left:auto">Resolvida</span></div>
-  <div class="card">
-    <div class="sec"><i class="ti ti-photo"></i> Comparativo antes / depois</div>
-    <div class="before-after">
-      <div class="ba-box ba-before"><div class="ba-label"><i class="ti ti-camera"></i> Antes — 28/05/2024</div><div class="ba-photo"><i class="ti ti-road-off" style="color:var(--cd)"></i></div></div>
-      <div class="ba-box ba-after"><div class="ba-label"><i class="ti ti-camera-check"></i> Depois — 29/05/2024</div><div class="ba-photo" style="background:rgba(29,158,117,.07)"><i class="ti ti-road" style="color:var(--cs)"></i></div></div>
-    </div>
-  </div>
-  <div class="qual-alert"><i class="ti ti-rotate-clockwise"></i><div><strong>Vinculado a reparo anterior</strong><br>Afundamento originado do conserto mal executado do protocolo <a onclick="alert('Protocolo #2024-0045')">#2024-0045</a>. Empresa notificada.</div></div>
-  <div class="card">
-    <div class="sec"><i class="ti ti-timeline"></i> Linha do tempo</div>
-    <div class="timeline">
-      <div class="tl-step"><div class="tl-line"></div><div class="tl-dot done"><i class="ti ti-check" style="font-size:11px"></i></div><div class="tl-body"><div class="tl-title">Denúncia recebida</div><div class="tl-sub">28/05/2024 14:32 · Protocolo #2024-0089</div></div></div>
-      <div class="tl-step"><div class="tl-line"></div><div class="tl-dot done"><i class="ti ti-check" style="font-size:11px"></i></div><div class="tl-body"><div class="tl-title">Aprovada</div><div class="tl-sub">28/05/2024 15:10 · Eng. Carlos Mendes</div></div></div>
-      <div class="tl-step"><div class="tl-line"></div><div class="tl-dot done"><i class="ti ti-check" style="font-size:11px"></i></div><div class="tl-body"><div class="tl-title">Execução iniciada</div><div class="tl-sub">29/05/2024 08:00 · Construtora Exemplo Ltda</div></div></div>
-      <div class="tl-step"><div class="tl-dot star"><i class="ti ti-star" style="font-size:11px"></i></div><div class="tl-body"><div class="tl-title" style="color:var(--cs)">Resolvida</div><div class="tl-sub">29/05/2024 16:40</div></div></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="sec"><i class="ti ti-info-circle"></i> Dados</div>
-    <table class="info-table">
-      <tr><td class="ik">Tipo</td><td class="iv"><span class="badge b-afunda">Afundamento</span></td></tr>
-      <tr><td class="ik">Gravidade</td><td class="iv"><span class="badge b-pend">Média</span></td></tr>
-      <tr><td class="ik">Denunciante</td><td class="iv">João da Silva</td></tr>
-      <tr><td class="ik">Empresa</td><td class="iv">Construtora Exemplo Ltda</td></tr>
-      <tr><td class="ik">Resolvido em</td><td class="iv" style="color:var(--cs)">29/05/2024 16:40</td></tr>
-      <tr><td class="ik">Reparo vinculado</td><td class="iv"><a class="link" onclick="alert('Protocolo #2024-0045')">Ver #2024-0045</a></td></tr>
-    </table>
-  </div>
-  <div class="action-row">
-    <button class="act-btn" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Registrar resolução</button>
-    <button class="act-btn primary" onclick="alert('Notificação enviada.')"><i class="ti ti-send"></i> Notificar cidadão</button>
-  </div>
-</section>
-
-
-<!-- ══ TELA 5 — RESOLUÇÃO ══ -->
+<!-- ══ TELA 4 — RESOLUÇÃO ══ -->
 <section id="s-resolucao" class="screen">
-  <button class="back-btn" onclick="go('detalhe')"><i class="ti ti-arrow-left"></i> Voltar à ocorrência</button>
-  <div class="resolve-header">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><i class="ti ti-circle-check" style="font-size:20px;color:var(--cs)"></i><span style="font-size:14px;font-weight:500">Registrar resolução</span></div>
-    <div class="info-box"><i class="ti ti-info-circle"></i> Protocolo <strong style="color:var(--tx0)">#2024-0089</strong> · Av. Cel. José Soares Marcondes, 2100</div>
+  <div class="info-box" style="margin-bottom:12px;display:flex;align-items:center;gap:8px">
+    <i class="ti ti-info-circle"></i>
+    <span>Protocolo: <strong id="res-proto" style="color:var(--tx0)">—</strong> · <span id="res-end">—</span></span>
   </div>
   <div class="card">
     <div class="sec"><i class="ti ti-calendar-check"></i> Data e responsável</div>
     <div class="row2">
-      <div class="field"><label>Data</label><input type="date" value="2024-05-29"></div>
-      <div class="field"><label>Hora</label><input type="time" value="16:40"></div>
-      <div class="field full"><label>Responsável</label><select><option>Construtora Exemplo Ltda</option><option>Equipe interna – Obras</option></select></div>
+      <div class="field"><label>Data</label><input id="res-data" type="date"></div>
+      <div class="field"><label>Hora</label><input id="res-hora" type="time"></div>
+      <div class="field full"><label>Responsável</label>
+        <select id="res-empresa"><option value="">— Selecionar —</option><option>Construtora Exemplo Ltda</option><option>Equipe interna – Obras</option><option>Construtora ABC Ltda</option></select>
+      </div>
     </div>
   </div>
   <div class="card">
     <div class="sec"><i class="ti ti-camera-check"></i> Foto após o reparo</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <div><div style="font-size:11px;color:var(--tx1);margin-bottom:5px"><i class="ti ti-camera"></i> Foto da denúncia</div><div style="height:96px;background:var(--bgd);border-radius:var(--r2);border:.5px solid var(--bdd);display:flex;align-items:center;justify-content:center"><i class="ti ti-road-off" style="font-size:32px;color:var(--cd)"></i></div></div>
-      <div><div style="font-size:11px;color:var(--tx1);margin-bottom:5px"><i class="ti ti-camera-check"></i> Após o reparo <span style="color:var(--cd)">*</span></div><div id="after-photo" style="height:96px;background:var(--bgs);border:1.5px dashed var(--bds);border-radius:var(--r2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer" onclick="registrarFoto()"><i class="ti ti-camera-plus" style="font-size:26px;color:var(--cs)"></i><span style="font-size:11px;color:var(--cs)">Tirar foto agora</span></div></div>
+      <div>
+        <div style="font-size:11px;color:var(--tx1);margin-bottom:5px"><i class="ti ti-camera"></i> Foto da denúncia</div>
+        <div id="res-foto-antes" style="height:96px;background:var(--bg1);border-radius:var(--r2);border:.5px solid var(--bd0);display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center">
+          <i class="ti ti-road-off" style="font-size:28px;color:var(--cd)"></i>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--tx1);margin-bottom:5px"><i class="ti ti-camera-check"></i> Após o reparo <span style="color:var(--cd)">*</span></div>
+        <div class="foto-slot" style="width:100%;height:96px">
+          <label for="res-foto" style="width:100%;height:100%;border-radius:var(--r2);border:1.5px dashed var(--bds);background:rgba(29,158,117,.07)">
+            <i class="ti ti-camera-plus" style="font-size:24px;color:var(--cs)"></i>
+            <span style="color:var(--cs)">Tirar foto</span>
+          </label>
+          <input type="file" id="res-foto" accept="image/*" capture="environment" onchange="selecionarFotoRes(this)">
+          <div class="foto-preview" id="res-prev"></div>
+          <div class="foto-ok" id="res-ok"><i class="ti ti-check" style="color:white;font-size:22px"></i></div>
+        </div>
+      </div>
     </div>
     <div class="info-box"><i class="ti ti-alert-circle"></i> Foto <strong style="color:var(--tx0)">obrigatória</strong> para encerrar a ocorrência.</div>
   </div>
   <div class="card">
-    <div class="sec"><i class="ti ti-star"></i> Avaliação do reparo</div>
+    <div class="sec"><i class="ti ti-star"></i> Avaliação</div>
     <div style="display:flex;flex-direction:column;gap:12px;font-size:13px">
-      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer"><input type="radio" name="qual" checked style="width:auto;margin-top:2px"><div><div style="font-weight:500">Reparo adequado</div><div style="font-size:11px;color:var(--tx1)">Superfície nivelada e compactada</div></div></label>
-      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer"><input type="radio" name="qual" style="width:auto;margin-top:2px"><div><div style="font-weight:500">Reparo provisório</div><div style="font-size:11px;color:var(--tx1)">Nova intervenção necessária</div></div></label>
-      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer"><input type="radio" name="qual" style="width:auto;margin-top:2px"><div><div style="font-weight:500">Reparo com ressalvas</div><div style="font-size:11px;color:var(--tx1)">Concluído com ponto de atenção</div></div></label>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer"><input type="radio" name="qual" value="adequado" checked style="width:auto;margin-top:2px"><div><div style="font-weight:500">Reparo adequado</div><div style="font-size:11px;color:var(--tx1)">Superfície nivelada e compactada</div></div></label>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer"><input type="radio" name="qual" value="provisorio" style="width:auto;margin-top:2px"><div><div style="font-weight:500">Reparo provisório</div><div style="font-size:11px;color:var(--tx1)">Nova intervenção necessária em breve</div></div></label>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer"><input type="radio" name="qual" value="ressalvas" style="width:auto;margin-top:2px"><div><div style="font-weight:500">Reparo com ressalvas</div><div style="font-size:11px;color:var(--tx1)">Concluído com ponto de atenção</div></div></label>
     </div>
-    <div class="field" style="margin-top:12px"><label>Observação técnica</label><textarea placeholder="Materiais, condições, pendências…"></textarea></div>
+    <div class="field" style="margin-top:12px"><label>Observação técnica</label><textarea id="res-obs" placeholder="Materiais, condições, pendências…"></textarea></div>
   </div>
   <div class="card">
     <div class="sec"><i class="ti ti-rotate-clockwise"></i> Este reparo gerou nova ocorrência?</div>
-    <div style="font-size:12px;color:var(--tx1);margin-bottom:12px;line-height:1.6">Se resultou em afundamento ou protuberância, registre como nova ocorrência. A empresa será vinculada automaticamente.</div>
+    <div style="font-size:12px;color:var(--tx1);margin-bottom:12px;line-height:1.6">Se resultou em afundamento ou protuberância, registre como nova ocorrência após confirmar.</div>
     <div class="action-row" style="margin:0">
       <button class="act-btn" onclick="go('form')"><i class="ti ti-trending-down"></i> Afundamento</button>
       <button class="act-btn" onclick="go('form')"><i class="ti ti-trending-up"></i> Protuberância</button>
     </div>
   </div>
   <div class="action-row">
-    <button class="act-btn" onclick="go('detalhe')">Cancelar</button>
-    <button class="act-btn success" onclick="confirmarResolucao()"><i class="ti ti-circle-check"></i> Confirmar resolução</button>
+    <button class="act-btn" onclick="go('painel')">Cancelar</button>
+    <button class="act-btn success" id="btn-confirmar-res" onclick="confirmarResolucao()"><i class="ti ti-circle-check"></i> Confirmar resolução</button>
   </div>
 </section>
 
@@ -595,6 +560,9 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
   </div>
   <div class="panel-body">
     <div class="panel-sec">
+      <div id="p-foto" style="height:140px;border-radius:var(--r2);background:var(--bg1);margin-bottom:10px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center">
+        <i class="ti ti-photo" style="font-size:32px;color:var(--tx2)"></i>
+      </div>
       <div id="p-end" style="font-size:15px;font-weight:500;margin-bottom:4px"></div>
       <div id="p-coords" style="font-size:11px;color:var(--tx1);margin-bottom:10px"></div>
       <button onclick="centralizarPin()" class="btn-repo"><i class="ti ti-crosshair"></i> Centralizar no mapa</button>
@@ -605,6 +573,7 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
         <tr><td class="ik">Gravidade</td><td class="iv" id="p-grav"></td></tr>
         <tr><td class="ik">Data</td><td class="iv" id="p-data"></td></tr>
         <tr><td class="ik">Denunciante</td><td class="iv" id="p-den"></td></tr>
+        <tr><td class="ik">Tipo de via</td><td class="iv" id="p-via"></td></tr>
       </table>
     </div>
     <div class="panel-sec">
@@ -624,11 +593,11 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
       </div>
       <div class="field" style="margin-bottom:10px">
         <label>Empresa responsável</label>
-        <select><option>— Selecionar —</option><option>Construtora Exemplo Ltda</option><option>Equipe interna – Obras</option><option>Construtora ABC Ltda</option></select>
+        <select id="p-sel-empresa"><option value="">— Selecionar —</option><option>Construtora Exemplo Ltda</option><option>Equipe interna – Obras</option><option>Construtora ABC Ltda</option></select>
       </div>
       <div class="field" style="margin-bottom:12px">
         <label>Observação</label>
-        <textarea placeholder="Notas para a equipe…"></textarea>
+        <textarea id="p-obs" placeholder="Notas para a equipe…"></textarea>
       </div>
       <div class="action-row" style="margin:0">
         <button class="act-btn" onclick="fecharPainel()">Cancelar</button>
@@ -636,32 +605,58 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
       </div>
     </div>
     <div class="action-row" style="margin-top:4px">
-      <button class="act-btn" onclick="go('detalhe');fecharPainel()"><i class="ti ti-file-description"></i> Detalhe completo</button>
+      <button class="act-btn" onclick="abrirResolucao()"><i class="ti ti-circle-check"></i> Registrar resolução</button>
     </div>
   </div>
 </aside>
 
 <div id="toast"></div>
 
+<!-- ══ FIREBASE SDK ══ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- Storage: ImgBB (gratuito, sem cartão) -->
 <!-- ══ LEAFLET ══ -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-/* ── DADOS MOCK ── */
-const OCS = [
-  {id:'2024-0089',tipo:'buraco', status:'pendente',  lat:-22.1189,lng:-51.3892,endereco:'Av. Cel. José Soares Marcondes, 2100',gravidade:'alta', data:'28/05/2024',denunciante:'João da Silva',  desc:'Buraco ~60 cm, sem sinalização, causou danos.'},
-  {id:'2024-0088',tipo:'afunda', status:'qualidade', lat:-22.1215,lng:-51.3901,endereco:'Rua Manoel Goulart, 450',            gravidade:'media',data:'27/05/2024',denunciante:'Anônimo',         desc:'Afundamento originado de reparo anterior #2024-0045.'},
-  {id:'2024-0087',tipo:'protu',  status:'execucao',  lat:-22.1178,lng:-51.3924,endereco:'Rua Sete de Setembro, 830',          gravidade:'media',data:'26/05/2024',denunciante:'Maria Oliveira',  desc:'Protuberância ~8 cm, risco para motos.'},
-  {id:'2024-0086',tipo:'buraco', status:'resolvido', lat:-22.1232,lng:-51.3865,endereco:'Av. Brasil, 1200',                   gravidade:'baixa',data:'22/05/2024',denunciante:'Pedro Costa',     desc:'Buraco pequeno no acostamento.'},
-  {id:'2024-0085',tipo:'buraco', status:'pendente',  lat:-22.1201,lng:-51.3949,endereco:'Rua Epitácio Pessoa, 300',           gravidade:'alta', data:'25/05/2024',denunciante:'Ana Santos',       desc:'Buraco causou dano a dois veículos.'},
-  {id:'2024-0084',tipo:'afunda', status:'pendente',  lat:-22.1156,lng:-51.3878,endereco:'Av. Washington Luiz, 1800',          gravidade:'alta', data:'24/05/2024',denunciante:'Carlos Lima',      desc:'Afundamento extenso ~3 m de comprimento.'},
-  {id:'2024-0083',tipo:'protu',  status:'resolvido', lat:-22.1244,lng:-51.3912,endereco:'Rua Santos Dumont, 560',             gravidade:'baixa',data:'20/05/2024',denunciante:'Sofia Ramos',      desc:'Lombada irregular pós-reparo, já corrigida.'},
-  {id:'2024-0082',tipo:'buraco', status:'execucao',  lat:-22.1167,lng:-51.3956,endereco:'Rua Dom Pedro II, 820',              gravidade:'media',data:'23/05/2024',denunciante:'Lucas Ferreira',   desc:'Buraco médio próximo a escola.'},
-  {id:'2024-0081',tipo:'afunda', status:'resolvido', lat:-22.1258,lng:-51.3870,endereco:'Av. Cel. Marcondes, 3400',           gravidade:'media',data:'15/05/2024',denunciante:'Beatriz Souza',    desc:'Afundamento resolvido com avaliação adequada.'},
-  {id:'2024-0080',tipo:'protu',  status:'pendente',  lat:-22.1192,lng:-51.3837,endereco:'Rua 15 de Novembro, 990',            gravidade:'alta', data:'26/05/2024',denunciante:'Ricardo Alves',    desc:'Protuberância alta, já causou acidente.'},
-  {id:'2024-0079',tipo:'buraco', status:'pendente',  lat:-22.1139,lng:-51.3898,endereco:'Av. Manoel Goulart, 2200',           gravidade:'media',data:'27/05/2024',denunciante:'Fernanda Lima',    desc:'Buracos múltiplos no mesmo trecho.'},
-  {id:'2024-0078',tipo:'afunda', status:'execucao',  lat:-22.1276,lng:-51.3930,endereco:'Rua Floriano Peixoto, 440',          gravidade:'alta', data:'21/05/2024',denunciante:'Marcelo Costa',    desc:'Afundamento severo em cruzamento movimentado.'},
-];
+/* ════════════════════════════════════════════════════════
+   ⚙️  CONFIGURAÇÃO FIREBASE
+════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyDRG3dL4pjfKAbF0se_-gsrweu5rc-GfEU",
+  authDomain:        "ocorrencias-viarias.firebaseapp.com",
+  projectId:         "ocorrencias-viarias",
+  messagingSenderId: "146633479484",
+  appId:             "1:146633479484:web:c645bc2b2a61b9dec97a39"
+};
+
+/* ⚙️  ImgBB — chave gratuita em imgbb.com/api */
+const IMGBB_KEY = "da635a32eb4b8060a8495db75f62b41f";
+
+/* ── Inicializa Firebase ── */
+let db, FIREBASE_OK = false;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db      = firebase.firestore();
+  FIREBASE_OK = firebaseConfig.apiKey !== 'COLE_AQUI' && firebaseConfig.apiKey.length > 10;
+} catch(e) {
+  console.warn('Firebase não configurado:', e);
+}
+
+if (FIREBASE_OK) {
+  document.getElementById('cfg-banner').style.display = 'none';
+  iniciarListeners();
+} else {
+  console.warn('Configure o firebaseConfig com as chaves do seu projeto.');
+}
+
+/* ════════════════════════════════════════════════════════
+   DADOS (cache local atualizado pelo Firestore onSnapshot)
+════════════════════════════════════════════════════════ */
+let OCS = [];
+let _pid = null;       // ID da ocorrência aberta no painel
+let _pidDocId = null;  // ID do documento Firestore
 
 /* ── LABELS ── */
 const LTIPO   = {buraco:'Buraco',afunda:'Afundamento',protu:'Protuberância'};
@@ -671,121 +666,344 @@ const GRAV    = {alta:'🔴 Alta',media:'🟡 Média',baixa:'🟢 Baixa'};
 const CORT    = {buraco:'#D94646',afunda:'#D88A10',protu:'#2E7EC4'};
 const CORD    = {pendente:'#D88A10',execucao:'#1A6AB8',resolvido:'#0F6E56',qualidade:'#7F77DD'};
 
-/* ── NAVEGAÇÃO ── */
-const TABS = {form:0,mapa:1,painel:2,detalhe:3,resolucao:4};
-function go(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('s-'+name).classList.add('active');
+/* ════════════════════════════════════════════════════════
+   LISTENER FIRESTORE — atualiza mapa e painel em tempo real
+════════════════════════════════════════════════════════ */
+function iniciarListeners() {
+  db.collection('ocorrencias')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot(snap => {
+      OCS = snap.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
+      if (mGok) renderPins();
+      atualizarPainel();
+    }, err => console.error('Firestore:', err));
+}
+
+/* ════════════════════════════════════════════════════════
+   NAVEGAÇÃO
+════════════════════════════════════════════════════════ */
+const TABS = {form:0, mapa:1, painel:2, resolucao:3};
+function go(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-' + name).classList.add('active');
   document.querySelectorAll('.tab-btn')[TABS[name]].classList.add('active');
-  if(name!=='mapa') window.scrollTo({top:0,behavior:'smooth'});
-  if(name==='mapa') iniciarMapaGeral();
+  if (name !== 'mapa') window.scrollTo({top:0, behavior:'smooth'});
+  if (name === 'mapa') iniciarMapaGeral();
 }
 
-/* ── FORMULÁRIO ── */
-function selTipo(el){
-  document.querySelectorAll('.tipo-card').forEach(c=>{c.classList.remove('sel-buraco','sel-afunda','sel-protu');c.setAttribute('aria-checked','false')});
-  el.classList.add('sel-'+el.dataset.tipo); el.setAttribute('aria-checked','true');
-  document.getElementById('flag-reparo').classList.toggle('show',el.dataset.tipo!=='buraco');
-  if(el.dataset.tipo==='buraco'){document.getElementById('chk-reparo').checked=false;document.getElementById('proto-wrap').classList.remove('show')}
-}
-function toggleProto(cb){document.getElementById('proto-wrap').classList.toggle('show',cb.checked)}
-function selSev(el,lv){document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('sel-low','sel-med','sel-high'));el.classList.add('sel-'+lv)}
-function filtrar(el){document.querySelectorAll('.filter-row .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
-function addFoto(el){el.style.opacity='1';el.innerHTML='<i class="ti ti-check" style="font-size:22px;color:var(--cs)"></i><span>Adicionada</span>';el.style.cursor='default';el.style.borderColor='var(--bds)';el.style.background='var(--bgs)'}
-function registrarFoto(){const el=document.getElementById('after-photo');el.innerHTML='<i class="ti ti-check" style="font-size:28px;color:var(--cs)"></i><span style="font-size:11px;color:var(--cs)">Foto registrada</span>';el.style.cursor='default';el.style.borderStyle='solid'}
-function enviarDenuncia(){alert('Denúncia enviada!\n\nProtocolo: #2024-0090\nVocê receberá atualizações por e-mail e SMS.')}
-function confirmarResolucao(){alert('Resolução confirmada!\nCidadão será notificado.');go('detalhe')}
-document.querySelectorAll('.tipo-card').forEach(c=>c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selTipo(c)}}));
+/* ════════════════════════════════════════════════════════
+   FORMULÁRIO — estado interno
+════════════════════════════════════════════════════════ */
+let selTipoVal = 'buraco';
+let selGravVal = 'media';
+const fotosArq = [null, null, null]; // arquivos selecionados
 
-/* ── TILES GOOGLE HYBRID (satélite + nomes de rua) ── */
-function addSatelite(map){
-  L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{
-    maxZoom:21,
-    subdomains:['mt0','mt1','mt2','mt3'],
-    attribution:'© Google'
+function selTipo(el) {
+  selTipoVal = el.dataset.tipo;
+  document.querySelectorAll('.tipo-card').forEach(c => {
+    c.classList.remove('sel-buraco','sel-afunda','sel-protu');
+    c.setAttribute('aria-checked','false');
+  });
+  el.classList.add('sel-' + selTipoVal);
+  el.setAttribute('aria-checked','true');
+  document.getElementById('flag-reparo').classList.toggle('show', selTipoVal !== 'buraco');
+  if (selTipoVal === 'buraco') {
+    document.getElementById('chk-reparo').checked = false;
+    document.getElementById('proto-wrap').classList.remove('show');
+  }
+}
+function toggleProto(cb) { document.getElementById('proto-wrap').classList.toggle('show', cb.checked); }
+function selSev(el) {
+  selGravVal = el.dataset.lv;
+  document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('sel-low','sel-med','sel-high'));
+  const map = {baixa:'low', media:'med', alta:'high'};
+  el.classList.add('sel-' + map[selGravVal]);
+}
+
+function selecionarFoto(num, input) {
+  const file = input.files[0]; if (!file) return;
+  fotosArq[num-1] = file;
+  const url = URL.createObjectURL(file);
+  const prev = document.getElementById('prev-' + num);
+  prev.style.backgroundImage = `url(${url})`;
+  prev.classList.add('show');
+  document.getElementById('ok-' + num).classList.add('show');
+  document.getElementById('slot-' + num).style.opacity = '1';
+  if (num < 3) document.getElementById('slot-' + (num+1)).style.opacity = '1';
+}
+
+let fotoResArq = null;
+function selecionarFotoRes(input) {
+  const file = input.files[0]; if (!file) return;
+  fotoResArq = file;
+  const url = URL.createObjectURL(file);
+  document.getElementById('res-prev').style.backgroundImage = `url(${url})`;
+  document.getElementById('res-prev').classList.add('show');
+  document.getElementById('res-ok').classList.add('show');
+}
+
+/* ════════════════════════════════════════════════════════
+   UPLOAD DE FOTO — ImgBB (gratuito, sem Firebase Storage)
+   Converte o arquivo para base64 e envia à API do ImgBB.
+   Retorna a URL pública da imagem.
+════════════════════════════════════════════════════════ */
+async function uploadFoto(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64 = reader.result.split(',')[1];
+        const form   = new FormData();
+        form.append('key',   IMGBB_KEY);
+        form.append('image', base64);
+        form.append('name',  `${Date.now()}_${file.name}`);
+
+        const resp = await fetch('https://api.imgbb.com/1/upload', {
+          method: 'POST',
+          body:   form,
+        });
+        const data = await resp.json();
+        if (data.success) resolve(data.data.url);
+        else reject(new Error(data.error?.message || 'ImgBB upload falhou'));
+      } catch(e) { reject(e); }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   ENVIAR DENÚNCIA → ImgBB (fotos) + Firestore (dados)
+════════════════════════════════════════════════════════ */
+async function enviarDenuncia() {
+  if (!FIREBASE_OK) { alert('Configure o Firebase primeiro.'); return; }
+
+  const lat = parseFloat(document.getElementById('inp-lat').value);
+  const lng = parseFloat(document.getElementById('inp-lng').value);
+  if (!lat || !lng) { alert('Marque o local no mapa antes de enviar.'); return; }
+  if (!fotosArq[0])  { alert('Anexe ao menos 1 foto da ocorrência.'); return; }
+
+  mostrarLoading('Enviando denúncia…');
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = true;
+
+  try {
+    /* 1. Upload das fotos no ImgBB */
+    mostrarLoading('Enviando fotos…');
+    const fotoUrls = [];
+    for (const file of fotosArq.filter(Boolean)) {
+      const url = await uploadFoto(file);
+      fotoUrls.push(url);
+    }
+
+    /* 2. Gera protocolo */
+    const protocolo = gerarProtocolo();
+
+    /* 3. Salva no Firestore */
+    await db.collection('ocorrencias').add({
+      protocolo,
+      tipo:              selTipoVal,
+      status:            'pendente',
+      lat, lng,
+      endereco:          document.getElementById('inp-end').value || '',
+      gravidade:         selGravVal,
+      dimensao:          document.getElementById('sel-dimensao').value,
+      tipoVia:           document.getElementById('sel-via').value,
+      fluxo:             document.getElementById('sel-fluxo').value,
+      desc:              document.getElementById('inp-desc').value,
+      denunciante:       document.getElementById('inp-nome').value,
+      cpf:               document.getElementById('inp-cpf').value,
+      telefone:          document.getElementById('inp-tel').value,
+      email:             document.getElementById('inp-email').value,
+      anonimo:           document.getElementById('anon').checked,
+      fotos:             fotoUrls,
+      reparoAnterior:    document.getElementById('chk-reparo').checked,
+      protocoloAnterior: document.getElementById('inp-proto-ant').value,
+      empresa:           '',
+      observacao:        '',
+      data:              new Date().toLocaleDateString('pt-BR'),
+      createdAt:         firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt:         firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    ocultarLoading();
+    alert(`✅ Denúncia enviada!\n\nProtocolo: ${protocolo}\nAguarde retorno da prefeitura.`);
+    resetarFormulario();
+
+  } catch (e) {
+    ocultarLoading();
+    console.error(e);
+    alert('Erro ao enviar. Verifique sua conexão e tente novamente.\n\n' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function gerarProtocolo() {
+  const d = new Date();
+  const ano = d.getFullYear();
+  const seq = String(d.getTime()).slice(-5);
+  return `${ano}-${seq}`;
+}
+
+function resetarFormulario() {
+  fotosArq.fill(null);
+  for (let i=1; i<=3; i++) {
+    document.getElementById('prev-' + i).classList.remove('show');
+    document.getElementById('ok-' + i).classList.remove('show');
+    if (i > 1) document.getElementById('slot-' + i).style.opacity = '.5';
+    document.getElementById('foto-' + i).value = '';
+  }
+  document.getElementById('inp-lat').value = '';
+  document.getElementById('inp-lng').value = '';
+  document.getElementById('inp-end').value = '';
+  document.getElementById('inp-desc').value = '';
+  document.getElementById('inp-nome').value = '';
+  document.getElementById('inp-cpf').value = '';
+  document.getElementById('inp-tel').value = '';
+  document.getElementById('inp-email').value = '';
+  document.getElementById('coord-banner').style.display = 'none';
+  document.getElementById('tags-via').innerHTML = '';
+  mostrarEstadoF('loc-idle');
+}
+
+/* ════════════════════════════════════════════════════════
+   PAINEL — atualiza contadores e lista dinamicamente
+════════════════════════════════════════════════════════ */
+function atualizarPainel() {
+  const total   = OCS.length;
+  const pend    = OCS.filter(o => o.status === 'pendente').length;
+  const exec    = OCS.filter(o => o.status === 'execucao').length;
+  const res     = OCS.filter(o => o.status === 'resolvido').length;
+  const buracos = OCS.filter(o => o.tipo === 'buraco').length;
+  const afundas = OCS.filter(o => o.tipo === 'afunda').length;
+  const protus  = OCS.filter(o => o.tipo === 'protu').length;
+
+  document.getElementById('cnt-total').textContent  = total;
+  document.getElementById('cnt-pend').textContent   = pend;
+  document.getElementById('cnt-exec').textContent   = exec;
+  document.getElementById('cnt-res').textContent    = res;
+  document.getElementById('cnt-buraco').textContent = buracos;
+  document.getElementById('cnt-afunda').textContent = afundas;
+  document.getElementById('cnt-protu').textContent  = protus;
+
+  const lista = document.getElementById('painel-lista');
+  if (OCS.length === 0) {
+    lista.innerHTML = '<div style="text-align:center;padding:24px;color:var(--tx1);font-size:13px">Nenhuma ocorrência registrada ainda.</div>';
+    return;
+  }
+  lista.innerHTML = OCS.slice(0, 15).map(oc => {
+    const thumb = oc.fotos && oc.fotos[0]
+      ? `style="background-image:url(${oc.fotos[0]});background-size:cover;background-position:center"`
+      : '';
+    const icone = !oc.fotos || !oc.fotos[0]
+      ? `<i class="ti ti-${oc.tipo==='buraco'?'circle-dashed':oc.tipo==='afunda'?'trending-down':'trending-up'}" style="color:${CORT[oc.tipo]}"></i>`
+      : '';
+    return `<div class="report-item" onclick="abrirPainel('${oc._docId}',false)">
+      <div class="rphoto" ${thumb}>${icone}</div>
+      <div class="rinfo">
+        <div class="raddr">${oc.endereco || '—'}</div>
+        <div class="rmeta"><span class="badge b-${oc.tipo}">${LTIPO[oc.tipo]}</span>#${oc.protocolo || oc._docId.slice(-6)} · ${oc.data || '—'}</div>
+      </div>
+      <span class="badge ${BSTATUS[oc.status]||'b-pend'}">${LSTATUS[oc.status]||'Pendente'}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════════
+   TILES GOOGLE HYBRID
+════════════════════════════════════════════════════════ */
+function addSatelite(map) {
+  L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+    maxZoom: 21,
+    subdomains: ['mt0','mt1','mt2','mt3'],
+    attribution: '© Google'
   }).addTo(map);
 }
 
-/* ══════════════════════════════════════
-   MAPA DO FORMULÁRIO (denúncia)
-══════════════════════════════════════ */
-let mF=null,mrkF=null,mFok=false,gTimer=null;
+/* ════════════════════════════════════════════════════════
+   MAPA DO FORMULÁRIO
+════════════════════════════════════════════════════════ */
+let mF=null, mrkF=null, mFok=false, gTimer=null;
 
-function iconeForm(){
+function iconeForm() {
   return L.divIcon({className:'',html:'<div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));cursor:grab"><svg width="28" height="36" viewBox="0 0 28 36"><path d="M14 0C6.27 0 0 6.27 0 14c0 9.33 14 22 14 22S28 23.33 28 14C28 6.27 21.73 0 14 0z" fill="#D94646"/><circle cx="14" cy="14" r="6" fill="white" opacity=".9"/></svg></div>',iconSize:[28,36],iconAnchor:[14,36]});
 }
-function mostrarEstadoF(id){
-  ['loc-idle','loc-loading','loc-erro','loc-mapa'].forEach(s=>{document.getElementById(s).style.display=s===id?'':'none'});
+function mostrarEstadoF(id) {
+  ['loc-idle','loc-loading','loc-erro','loc-mapa'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? '' : 'none';
+  });
 }
-function iniciarMapaForm(lat,lng){
+function iniciarMapaForm(lat, lng) {
   mostrarEstadoF('loc-mapa');
-  if(!mFok){
-    mF=L.map('mapa-leaflet',{center:[lat,lng],zoom:18,zoomControl:true});
+  if (!mFok) {
+    mF = L.map('mapa-leaflet', {center:[lat,lng], zoom:18, zoomControl:true});
     addSatelite(mF);
-    mrkF=L.marker([lat,lng],{icon:iconeForm(),draggable:true,autoPan:true}).addTo(mF);
-    mrkF.on('dragend',()=>{const p=mrkF.getLatLng();atualizarCoordF(p.lat,p.lng)});
-    mF.on('click',e=>{mrkF.setLatLng(e.latlng);atualizarCoordF(e.latlng.lat,e.latlng.lng)});
-    mFok=true;
+    mrkF = L.marker([lat,lng], {icon:iconeForm(), draggable:true, autoPan:true}).addTo(mF);
+    mrkF.on('dragend', () => { const p=mrkF.getLatLng(); atualizarCoordF(p.lat,p.lng); });
+    mF.on('click', e => { mrkF.setLatLng(e.latlng); atualizarCoordF(e.latlng.lat,e.latlng.lng); });
+    mFok = true;
   } else {
     mF.setView([lat,lng],18); mrkF.setLatLng([lat,lng]);
   }
-  atualizarCoordF(lat,lng);
-  setTimeout(()=>mF.invalidateSize(),150);
+  atualizarCoordF(lat, lng);
+  setTimeout(() => mF.invalidateSize(), 150);
 }
-function atualizarCoordF(lat,lng){
-  document.getElementById('inp-lat').value=lat.toFixed(6);
-  document.getElementById('inp-lng').value=lng.toFixed(6);
-  document.getElementById('inp-end').value='Identificando endereço…';
-  document.getElementById('coord-banner').style.display='flex';
-  document.getElementById('coord-txt').textContent=`${lat.toFixed(5)}, ${lng.toFixed(5)} — arraste para ajustar`;
+function atualizarCoordF(lat, lng) {
+  document.getElementById('inp-lat').value = lat.toFixed(8);
+  document.getElementById('inp-lng').value = lng.toFixed(8);
+  document.getElementById('inp-end').value = 'Identificando endereço…';
+  document.getElementById('coord-banner').style.display = 'flex';
+  document.getElementById('coord-txt').textContent = `${lat.toFixed(8)}, ${lng.toFixed(8)} — arraste para ajustar`;
   clearTimeout(gTimer);
-  gTimer=setTimeout(()=>geocodificar(lat,lng),800);
+  gTimer = setTimeout(() => geocodificar(lat, lng), 800);
 }
-async function geocodificar(lat,lng){
-  try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&accept-language=pt-BR`);
-    const d=await r.json(); const a=d.address||{};
-    const p=[a.road||a.pedestrian||'',a.house_number||'',a.suburb||a.neighbourhood||'',a.city||a.town||a.village||'',a.state||''].filter(Boolean);
-    document.getElementById('inp-end').value=p.join(', ')||d.display_name;
-    document.getElementById('tags-via').innerHTML=(a.city||a.town?'<span class="tag"><i class="ti ti-building"></i> Zona urbana</span>':'')+(a.road?'<span class="tag"><i class="ti ti-road"></i> Via identificada</span>':'');
-    document.getElementById('coord-txt').textContent='Localização confirmada — '+(p.join(', ')||'').slice(0,55);
-  }catch(_){document.getElementById('inp-end').value='Endereço não identificado'}
+async function geocodificar(lat, lng) {
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&accept-language=pt-BR`);
+    const d = await r.json(); const a = d.address || {};
+    const p = [a.road||a.pedestrian||'',a.house_number||'',a.suburb||a.neighbourhood||'',a.city||a.town||a.village||'',a.state||''].filter(Boolean);
+    document.getElementById('inp-end').value = p.join(', ') || d.display_name;
+    document.getElementById('tags-via').innerHTML = (a.city||a.town ? '<span class="tag"><i class="ti ti-building"></i> Zona urbana</span>' : '') + (a.road ? '<span class="tag"><i class="ti ti-road"></i> Via identificada</span>' : '');
+    document.getElementById('coord-txt').textContent = 'Localização confirmada — ' + (p.join(', ')||'').slice(0,55);
+  } catch(_) { document.getElementById('inp-end').value = 'Endereço não identificado'; }
 }
-function usarGPS(){
-  if(!navigator.geolocation){mostrarEstadoF('loc-erro');return}
+function usarGPS() {
+  if (!navigator.geolocation) { mostrarEstadoF('loc-erro'); return; }
   mostrarEstadoF('loc-loading');
   navigator.geolocation.getCurrentPosition(
-    p=>iniciarMapaForm(p.coords.latitude,p.coords.longitude),
-    ()=>mostrarEstadoF('loc-erro'),
-    {enableHighAccuracy:true,timeout:12000,maximumAge:0}
+    p => iniciarMapaForm(p.coords.latitude, p.coords.longitude),
+    () => mostrarEstadoF('loc-erro'),
+    {enableHighAccuracy:true, timeout:12000, maximumAge:0}
   );
 }
-function abrirMapaManual(){iniciarMapaForm(-22.1209,-51.3883)}
-function reposicionarGPS(){
-  if(!navigator.geolocation)return;
-  const btn=event.currentTarget; btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Buscando…';
-  navigator.geolocation.getCurrentPosition(p=>{
+function abrirMapaManual() { iniciarMapaForm(-22.1209, -51.3883); }
+function reposicionarGPS() {
+  if (!navigator.geolocation) return;
+  const btn = event.currentTarget;
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Buscando…';
+  navigator.geolocation.getCurrentPosition(p => {
     mF.setView([p.coords.latitude,p.coords.longitude],18);
     mrkF.setLatLng([p.coords.latitude,p.coords.longitude]);
     atualizarCoordF(p.coords.latitude,p.coords.longitude);
-    btn.disabled=false; btn.innerHTML='<i class="ti ti-current-location"></i> Reposicionar pelo GPS';
-  },()=>{btn.disabled=false;btn.innerHTML='<i class="ti ti-current-location"></i> Reposicionar pelo GPS'},{enableHighAccuracy:true,timeout:10000});
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-current-location"></i> Reposicionar pelo GPS';
+  }, () => { btn.disabled=false; btn.innerHTML='<i class="ti ti-current-location"></i> Reposicionar pelo GPS'; }, {enableHighAccuracy:true,timeout:10000});
 }
 
-/* ══════════════════════════════════════
-   MAPA GERAL (visualização de ocorrências)
-══════════════════════════════════════ */
-let mG=null,layerG=null,mrkUser=null,mGok=false,filtroAtual='todos';
+/* ════════════════════════════════════════════════════════
+   MAPA GERAL — pinos carregados do Firestore
+════════════════════════════════════════════════════════ */
+let mG=null, layerG=null, mrkUser=null, mGok=false, filtroAtual='todos';
 
-function svgInterno(tipo){
-  if(tipo==='buraco') return '<circle cx="10" cy="10" r="5" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 1.8"/>';
-  if(tipo==='afunda') return '<polyline points="5,8 10,13 15,8" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
-  if(tipo==='protu')  return '<polyline points="5,13 10,8 15,13" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
+function svgInterno(tipo) {
+  if (tipo==='buraco') return '<circle cx="10" cy="10" r="5" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 1.8"/>';
+  if (tipo==='afunda') return '<polyline points="5,8 10,13 15,8" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
+  if (tipo==='protu')  return '<polyline points="5,13 10,8 15,13" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
   return '';
 }
-function criarPin(tipo,status){
-  const c=CORT[tipo]||'#888', b=CORD[status]||'#888';
+function criarPin(tipo, status) {
+  const c = CORT[tipo]||'#888', b = CORD[status]||'#888';
   return L.divIcon({
     className:'',
     html:`<div style="position:relative;filter:drop-shadow(0 2px 5px rgba(0,0,0,.45));cursor:pointer">
@@ -796,128 +1014,239 @@ function criarPin(tipo,status){
       </svg>
       <div style="position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:${b};border:1.5px solid white"></div>
     </div>`,
-    iconSize:[34,42],iconAnchor:[17,42],popupAnchor:[0,-44]
+    iconSize:[34,42], iconAnchor:[17,42], popupAnchor:[0,-44]
   });
 }
-function popupHTML(oc){
-  const gc=oc.gravidade==='alta'?'#9B2626':oc.gravidade==='media'?'#7A4508':'#0F6E56';
+function popupHTML(oc) {
+  const gc = oc.gravidade==='alta'?'#9B2626':oc.gravidade==='media'?'#7A4508':'#0F6E56';
+  const fotoEl = oc.fotos && oc.fotos[0]
+    ? `<div class="popup-foto" style="display:block;background-image:url(${oc.fotos[0]})"></div>` : '';
   return `<div class="popup-card">
     <div class="popup-header">
-      <div class="popup-tipo">${LTIPO[oc.tipo]}</div>
-      <span class="badge ${BSTATUS[oc.status]}">${LSTATUS[oc.status]}</span>
+      <div class="popup-tipo">${LTIPO[oc.tipo]||oc.tipo}</div>
+      <span class="badge ${BSTATUS[oc.status]||'b-pend'}">${LSTATUS[oc.status]||'Pendente'}</span>
     </div>
-    <div class="popup-addr"><svg width="12" height="14" viewBox="0 0 12 14" style="flex-shrink:0"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.5 5 9 5 9s5-5.5 5-9c0-2.76-2.24-5-5-5z" fill="${CORT[oc.tipo]}"/></svg>${oc.endereco}</div>
-    <div class="popup-meta"><span>#${oc.id}</span>·<span>${oc.data}</span>·<span style="color:${gc}">${oc.gravidade.charAt(0).toUpperCase()+oc.gravidade.slice(1)}</span></div>
-    <div class="popup-body">${oc.desc}</div>
+    ${fotoEl}
+    <div class="popup-addr">${oc.endereco||'—'}</div>
+    <div class="popup-meta"><span>#${oc.protocolo||oc._docId.slice(-6)}</span>·<span>${oc.data||'—'}</span>·<span style="color:${gc}">${(oc.gravidade||'').charAt(0).toUpperCase()+(oc.gravidade||'').slice(1)}</span></div>
+    <div class="popup-body">${(oc.desc||'').slice(0,100)}${oc.desc&&oc.desc.length>100?'…':''}</div>
     <div class="popup-footer">
-      <button class="popup-btn" onclick="abrirPainel('${oc.id}',false)">
+      <button class="popup-btn" onclick="abrirPainel('${oc._docId}',false)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Detalhes
       </button>
-      <button class="popup-btn primary" onclick="abrirPainel('${oc.id}',true)">
+      <button class="popup-btn primary" onclick="abrirPainel('${oc._docId}',true)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar
       </button>
     </div>
   </div>`;
 }
-function renderPins(){
+function renderPins() {
   layerG.clearLayers();
-  OCS.forEach(oc=>{
-    const ok=filtroAtual==='todos'||
-      (['buraco','afunda','protu'].includes(filtroAtual)&&filtroAtual===oc.tipo)||
-      (['pendente','execucao','resolvido','qualidade'].includes(filtroAtual)&&filtroAtual===oc.status);
-    if(!ok)return;
-    const m=L.marker([oc.lat,oc.lng],{icon:criarPin(oc.tipo,oc.status)});
-    m._ocId=oc.id;
-    m.bindPopup(popupHTML(oc),{maxWidth:290,minWidth:240});
+  OCS.forEach(oc => {
+    const ok = filtroAtual==='todos' ||
+      (['buraco','afunda','protu'].includes(filtroAtual) && filtroAtual===oc.tipo) ||
+      (['pendente','execucao','resolvido','qualidade'].includes(filtroAtual) && filtroAtual===oc.status);
+    if (!ok) return;
+    const m = L.marker([oc.lat, oc.lng], {icon: criarPin(oc.tipo, oc.status)});
+    m._docId = oc._docId;
+    m.bindPopup(popupHTML(oc), {maxWidth:290, minWidth:240});
     m.addTo(layerG);
   });
 }
-function iniciarMapaGeral(){
-  if(!mGok){
-    mG=L.map('mapa-geral',{center:[-22.1209,-51.3883],zoom:14,zoomControl:true});
+function iniciarMapaGeral() {
+  if (!mGok) {
+    mG = L.map('mapa-geral', {center:[-22.1209,-51.3883], zoom:14, zoomControl:true});
     addSatelite(mG);
-    layerG=L.layerGroup().addTo(mG);
-    mGok=true;
+    layerG = L.layerGroup().addTo(mG);
+    mGok = true;
     obterLocUsuario();
   }
   renderPins();
-  setTimeout(()=>mG.invalidateSize(),150);
+  setTimeout(() => mG.invalidateSize(), 150);
 }
-function obterLocUsuario(){
-  if(!navigator.geolocation)return;
-  navigator.geolocation.getCurrentPosition(p=>{
-    const {latitude:lat,longitude:lng}=p.coords;
-    if(mrkUser)mG.removeLayer(mrkUser);
-    mrkUser=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`
+function obterLocUsuario() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(p => {
+    const {latitude:lat, longitude:lng} = p.coords;
+    if (mrkUser) mG.removeLayer(mrkUser);
+    mrkUser = L.marker([lat,lng], {
+      icon: L.divIcon({className:'', html:`
         <div style="position:relative;width:22px;height:22px">
           <div style="position:absolute;inset:0;border-radius:50%;background:rgba(26,106,184,.25);animation:pulse 2s ease-in-out infinite"></div>
           <div style="position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#1A6AB8;border:2.5px solid white;box-shadow:0 2px 4px rgba(0,0,0,.3)"></div>
-        </div>`,iconSize:[22,22],iconAnchor:[11,11]})
+        </div>`, iconSize:[22,22], iconAnchor:[11,11]})
     }).addTo(mG);
-    mrkUser.bindPopup(`<div style="padding:8px;font-size:12px;font-family:inherit"><strong>Você está aqui</strong><br><span style="color:#9c9a92;font-size:11px">${lat.toFixed(5)}, ${lng.toFixed(5)}</span></div>`);
-    mG.setView([lat,lng],15);
-  },()=>{},{enableHighAccuracy:true,timeout:10000});
+    mrkUser.bindPopup(`<div style="padding:8px;font-size:12px;font-family:inherit"><strong>Você está aqui</strong><br><span style="color:#9c9a92;font-size:11px">${lat.toFixed(8)}, ${lng.toFixed(8)}</span></div>`);
+    mG.setView([lat,lng], 15);
+  }, () => {}, {enableHighAccuracy:true, timeout:10000});
 }
-function centralizarUsuario(){
-  if(!mGok){iniciarMapaGeral();return}
-  if(mrkUser){mG.setView(mrkUser.getLatLng(),17);mrkUser.openPopup();return}
+function centralizarUsuario() {
+  if (!mGok) { iniciarMapaGeral(); return; }
+  if (mrkUser) { mG.setView(mrkUser.getLatLng(),17); mrkUser.openPopup(); return; }
   obterLocUsuario();
 }
-function filtroMapa(tipo,el){
-  filtroAtual=tipo;
-  document.querySelectorAll('.mapa-toolbar .chip').forEach(c=>c.classList.remove('on'));
+function filtroMapa(tipo, el) {
+  filtroAtual = tipo;
+  document.querySelectorAll('.mapa-toolbar .chip').forEach(c => c.classList.remove('on'));
   el.classList.add('on');
-  if(mGok)renderPins();
+  if (mGok) renderPins();
 }
 
-/* ══════════════════════════════════════
-   PAINEL LATERAL
-══════════════════════════════════════ */
-let _pid=null;
+/* ════════════════════════════════════════════════════════
+   PAINEL LATERAL — abre ao clicar no pin
+════════════════════════════════════════════════════════ */
+function abrirPainel(docId, editar) {
+  const oc = OCS.find(o => o._docId === docId);
+  if (!oc) return;
+  _pid = oc.protocolo || docId;
+  _pidDocId = docId;
+  if (mG) mG.closePopup();
 
-function abrirPainel(id,editar){
-  const oc=OCS.find(o=>o.id===id); if(!oc)return;
-  _pid=id;
-  if(mG)mG.closePopup();
+  document.getElementById('p-tipo').innerHTML   = `<span class="badge b-${oc.tipo}">${LTIPO[oc.tipo]||oc.tipo}</span>`;
+  document.getElementById('p-status').innerHTML = `<span class="badge ${BSTATUS[oc.status]||'b-pend'}">${LSTATUS[oc.status]||'Pendente'}</span>`;
+  document.getElementById('p-proto').textContent = '#' + (oc.protocolo || docId.slice(-6));
+  document.getElementById('p-end').textContent   = oc.endereco || '—';
+  document.getElementById('p-coords').textContent = `${(oc.lat||0).toFixed(8)}, ${(oc.lng||0).toFixed(8)}`;
+  document.getElementById('p-grav').textContent  = GRAV[oc.gravidade] || oc.gravidade || '—';
+  document.getElementById('p-data').textContent  = oc.data || '—';
+  document.getElementById('p-den').textContent   = oc.anonimo ? 'Anônimo' : (oc.denunciante || '—');
+  document.getElementById('p-via').textContent   = oc.tipoVia || '—';
+  document.getElementById('p-desc').textContent  = oc.desc || '—';
+  document.getElementById('p-sel-status').value  = oc.status || 'pendente';
+  document.getElementById('p-sel-empresa').value = oc.empresa || '';
+  document.getElementById('p-obs').value         = oc.observacao || '';
+  document.getElementById('p-edit').style.display = editar ? '' : 'none';
 
-  document.getElementById('p-tipo').innerHTML  =`<span class="badge b-${oc.tipo}">${LTIPO[oc.tipo]}</span>`;
-  document.getElementById('p-status').innerHTML=`<span class="badge ${BSTATUS[oc.status]}">${LSTATUS[oc.status]}</span>`;
-  document.getElementById('p-proto').textContent='#'+oc.id;
-  document.getElementById('p-end').textContent  =oc.endereco;
-  document.getElementById('p-coords').textContent=`${oc.lat.toFixed(5)}, ${oc.lng.toFixed(5)}`;
-  document.getElementById('p-grav').textContent  =GRAV[oc.gravidade]||oc.gravidade;
-  document.getElementById('p-data').textContent  =oc.data;
-  document.getElementById('p-den').textContent   =oc.denunciante;
-  document.getElementById('p-desc').textContent  =oc.desc;
-  document.getElementById('p-sel-status').value  =oc.status;
-  document.getElementById('p-edit').style.display=editar?'':'none';
+  // Foto no painel
+  const fotoEl = document.getElementById('p-foto');
+  if (oc.fotos && oc.fotos[0]) {
+    fotoEl.style.backgroundImage = `url(${oc.fotos[0]})`;
+    fotoEl.innerHTML = '';
+  } else {
+    fotoEl.style.backgroundImage = '';
+    fotoEl.innerHTML = '<i class="ti ti-photo" style="font-size:32px;color:var(--tx2)"></i>';
+  }
 
   document.getElementById('side-panel').classList.add('open');
   document.getElementById('panel-overlay').classList.add('show');
 }
-function fecharPainel(){
+function fecharPainel() {
   document.getElementById('side-panel').classList.remove('open');
   document.getElementById('panel-overlay').classList.remove('show');
-  _pid=null;
+  _pid = null; _pidDocId = null;
 }
-function centralizarPin(){
-  const oc=OCS.find(o=>o.id===_pid); if(!oc||!mG)return;
-  mG.setView([oc.lat,oc.lng],18); fecharPainel();
-}
-function salvarPainel(){
-  const oc=OCS.find(o=>o.id===_pid); if(!oc)return;
-  oc.status=document.getElementById('p-sel-status').value;
-  layerG.eachLayer(m=>{
-    if(m._ocId===oc.id){m.setIcon(criarPin(oc.tipo,oc.status));m.setPopupContent(popupHTML(oc))}
-  });
-  document.getElementById('p-status').innerHTML=`<span class="badge ${BSTATUS[oc.status]}">${LSTATUS[oc.status]}</span>`;
+function centralizarPin() {
+  const oc = OCS.find(o => o._docId === _pidDocId);
+  if (!oc || !mG) return;
+  mG.setView([oc.lat, oc.lng], 18);
   fecharPainel();
-  const t=document.getElementById('toast');
-  t.textContent=`✓ #${oc.id} → ${LSTATUS[oc.status]}`;
-  t.style.display='block';
-  setTimeout(()=>t.style.display='none',3000);
 }
+
+/* ── Salvar edição de status no Firestore ── */
+async function salvarPainel() {
+  if (!FIREBASE_OK || !_pidDocId) return;
+  const novoStatus  = document.getElementById('p-sel-status').value;
+  const empresa     = document.getElementById('p-sel-empresa').value;
+  const observacao  = document.getElementById('p-obs').value;
+
+  mostrarLoading('Atualizando…');
+  try {
+    await db.collection('ocorrencias').doc(_pidDocId).update({
+      status: novoStatus,
+      empresa,
+      observacao,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    fecharPainel();
+    toast(`✓ Status atualizado → ${LSTATUS[novoStatus]}`);
+  } catch(e) {
+    alert('Erro ao atualizar: ' + e.message);
+  } finally {
+    ocultarLoading();
+  }
+}
+
+/* ── Abrir tela de resolução a partir do painel ── */
+function abrirResolucao() {
+  const oc = OCS.find(o => o._docId === _pidDocId);
+  if (!oc) return;
+  document.getElementById('res-proto').textContent = oc.protocolo || _pidDocId.slice(-6);
+  document.getElementById('res-end').textContent   = oc.endereco || '—';
+  // preenche data/hora atual
+  const now = new Date();
+  document.getElementById('res-data').value = now.toISOString().split('T')[0];
+  document.getElementById('res-hora').value = now.toTimeString().slice(0,5);
+  // foto antes
+  const fAnt = document.getElementById('res-foto-antes');
+  if (oc.fotos && oc.fotos[0]) {
+    fAnt.style.backgroundImage = `url(${oc.fotos[0]})`;
+    fAnt.innerHTML = '';
+  }
+  fecharPainel();
+  go('resolucao');
+}
+
+/* ── Confirmar resolução → ImgBB (foto) + Firestore (dados) ── */
+async function confirmarResolucao() {
+  if (!FIREBASE_OK || !_pidDocId) { alert('Selecione uma ocorrência no painel primeiro.'); return; }
+  if (!fotoResArq) { alert('Anexe a foto do reparo antes de confirmar.'); return; }
+
+  mostrarLoading('Registrando resolução…');
+  const btn = document.getElementById('btn-confirmar-res');
+  btn.disabled = true;
+  try {
+    // Upload foto do reparo no ImgBB
+    mostrarLoading('Enviando foto do reparo…');
+    const fotoResUrl = await uploadFoto(fotoResArq);
+
+    const avaliacao = document.querySelector('input[name="qual"]:checked')?.value || 'adequado';
+
+    await db.collection('ocorrencias').doc(_pidDocId).update({
+      status:        'resolvido',
+      empresa:       document.getElementById('res-empresa').value,
+      dataResolucao: `${document.getElementById('res-data').value} ${document.getElementById('res-hora').value}`,
+      fotoResolucao: fotoResUrl,
+      avaliacao,
+      observacaoResolucao: document.getElementById('res-obs').value,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    ocultarLoading();
+    toast('✓ Ocorrência marcada como resolvida!');
+    fotoResArq = null;
+    go('painel');
+  } catch(e) {
+    ocultarLoading();
+    alert('Erro: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   UTILITÁRIOS
+════════════════════════════════════════════════════════ */
+function mostrarLoading(txt='Aguarde…') {
+  document.getElementById('loading-txt').textContent = txt;
+  document.getElementById('loading').classList.add('show');
+}
+function ocultarLoading() {
+  document.getElementById('loading').classList.remove('show');
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+function filtrar(el) {
+  document.querySelectorAll('.filter-row .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+document.querySelectorAll('.tipo-card').forEach(c => c.addEventListener('keydown', e => {
+  if (e.key==='Enter'||e.key===' ') { e.preventDefault(); selTipo(c); }
+}));
 </script>
 </body>
 </html>
