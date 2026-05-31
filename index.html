@@ -38,22 +38,33 @@
 }}
 html{font-size:16px;scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:100vh}
-.app-header{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:0 20px;position:sticky;top:0;z-index:200}
-.app-title{display:flex;align-items:center;gap:10px;padding:14px 0 0;font-size:15px;font-weight:500}
-.app-title i{font-size:20px;color:var(--cd)}
-.nav-tabs{display:flex;overflow-x:auto;padding:8px 0 0;scrollbar-width:none;gap:0}
+/* ── HEADER ── */
+.app-header{background:var(--bg0);border-bottom:.5px solid var(--bd0);position:sticky;top:0;z-index:200}
+.header-inner{display:flex;align-items:stretch;padding:0 16px;min-height:52px}
+.app-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;white-space:nowrap;padding-right:16px;margin-right:4px;border-right:.5px solid var(--bd0);flex-shrink:0}
+.app-title i{font-size:18px;color:var(--cd)}
+.nav-tabs{display:flex;overflow-x:auto;flex:1;scrollbar-width:none;gap:0}
 .nav-tabs::-webkit-scrollbar{display:none}
-.tab-btn{flex-shrink:0;font-size:13px;padding:7px 14px 10px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--tx1);cursor:pointer;display:flex;align-items:center;gap:6px;transition:color .15s;white-space:nowrap}
+.tab-btn{flex-shrink:0;font-size:13px;padding:0 14px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--tx1);cursor:pointer;display:flex;align-items:center;gap:6px;transition:color .15s;white-space:nowrap;height:52px}
 .tab-btn:hover{color:var(--tx0)}
 .tab-btn.active{color:var(--ci);border-bottom-color:var(--ci);font-weight:500}
+/* Mobile: empilha título acima das abas */
+@media(max-width:560px){
+  .header-inner{flex-direction:column;align-items:flex-start;padding:0}
+  .app-title{padding:10px 16px 8px;border-right:none;min-height:auto}
+  .nav-tabs{padding:0 16px;width:100%;border-top:.5px solid var(--bd0)}
+  .tab-btn{height:40px;font-size:12px;padding:0 10px}
+}
 .app-body{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 .screen{display:none}
 .screen.active{display:block}
-#s-mapa.active{display:flex;flex-direction:column;height:calc(100vh - 90px);padding:0;max-width:100%}
+#s-mapa.active{display:flex;flex-direction:column;height:calc(100vh - 52px);padding:0;max-width:100%;width:100%}
+@media(max-width:560px){#s-mapa.active{height:calc(100vh - 90px)}}
 .mapa-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden}
-.mapa-toolbar{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0;z-index:10}
-#mapa-geral{flex:1;z-index:1}
-.mapa-legenda{background:var(--bg0);border-top:.5px solid var(--bd0);padding:8px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;flex-shrink:0;z-index:10}
+.mapa-toolbar{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:6px 10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0;z-index:10}
+.mapa-legenda{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:5px 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0;z-index:10}
+#mapa-geral{flex:1;z-index:1;min-height:0}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx1)}
 .card{background:var(--bg0);border:.5px solid var(--bd0);border-radius:var(--r3);padding:16px 18px;margin-bottom:12px}
 .sec{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx1);margin-bottom:12px;display:flex;align-items:center;gap:6px}
@@ -178,6 +189,17 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .map-estado i{font-size:28px;color:var(--tx1)}
 .map-estado p{font-size:13px;color:var(--tx1);line-height:1.5}
 .map-estado small{font-size:11px;color:var(--tx2)}
+/* Painel de colagem de coordenadas */
+.coord-paste-panel{background:var(--bg1);border:.5px solid var(--bdi);border-radius:var(--r2);padding:12px 14px;margin-bottom:10px}
+.coord-paste-label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ci);display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.coord-paste-row{display:flex;gap:8px;align-items:stretch}
+.coord-paste-input{flex:1;font-size:13px;padding:8px 10px;border:.5px solid var(--bd1);border-radius:var(--r2);background:var(--bg0);color:var(--tx0);font-family:monospace;min-width:0}
+.coord-paste-input:focus{outline:none;border-color:var(--ci);box-shadow:0 0 0 3px rgba(55,138,221,.12)}
+.coord-paste-input.ok{border-color:var(--bds)}
+.coord-paste-input.err{border-color:var(--bdd)}
+.coord-paste-btn{padding:8px 14px;border-radius:var(--r2);border:none;background:var(--ci);color:#fff;font-size:13px;font-weight:500;cursor:pointer;flex-shrink:0;transition:opacity .15s}
+.coord-paste-btn:hover{opacity:.85}
+.coord-paste-hint{font-size:11px;color:var(--tx2);margin-top:6px;line-height:1.5}
 .btn-gps{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--r2);border:.5px solid var(--bdi);background:var(--bgi);color:var(--ci);font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s}
 .btn-gps:hover{opacity:.85}
 .btn-gps:disabled{opacity:.5;cursor:default}
@@ -238,16 +260,18 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 </div>
 
 <header class="app-header">
-  <div class="app-title">
-    <i class="ti ti-road-off"></i>
-    <span>Ocorrências viárias</span>
+  <div class="header-inner">
+    <div class="app-title">
+      <i class="ti ti-road-off"></i>
+      <span>Ocorrências viárias</span>
+    </div>
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="go('form')"><i class="ti ti-alert-triangle"></i> Denunciar</button>
+      <button class="tab-btn" onclick="go('mapa')"><i class="ti ti-map"></i> Mapa geral</button>
+      <button class="tab-btn" onclick="go('painel')"><i class="ti ti-layout-dashboard"></i> Painel</button>
+      <button class="tab-btn" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Resolução</button>
+    </nav>
   </div>
-  <nav class="nav-tabs">
-    <button class="tab-btn active" onclick="go('form')"><i class="ti ti-alert-triangle"></i> Denunciar</button>
-    <button class="tab-btn" onclick="go('mapa')"><i class="ti ti-map"></i> Mapa geral</button>
-    <button class="tab-btn" onclick="go('painel')"><i class="ti ti-layout-dashboard"></i> Painel</button>
-    <button class="tab-btn" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Resolução</button>
-  </nav>
 </header>
 
 <main class="app-body">
@@ -316,12 +340,37 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 
   <div class="card">
     <div class="sec"><i class="ti ti-map-pin"></i> Localização</div>
+
+    <!-- Estado: aguardando ação -->
     <div class="map-estado" id="loc-idle">
       <i class="ti ti-map-2"></i>
       <p>Marque o local exato no mapa satelital.<br>Quanto mais preciso, menos deslocamento da equipe.</p>
       <button class="btn-gps" onclick="usarGPS()"><i class="ti ti-current-location"></i> Usar minha localização</button>
       <small>ou <a class="link" onclick="abrirMapaManual()" style="cursor:pointer">posicionar manualmente no mapa</a></small>
     </div>
+
+    <!-- Painel de colagem de coordenadas (sempre visível) -->
+    <div class="coord-paste-panel">
+      <div class="coord-paste-label">
+        <i class="ti ti-map-pin-2" aria-hidden="true"></i>
+        Colar coordenadas do Google Maps
+      </div>
+      <div class="coord-paste-row">
+        <input class="coord-paste-input" id="inp-paste-coords"
+          type="text" placeholder="-22.106714598026688, -51.39042136351584"
+          oninput="validarCoordsPaste(this)"
+          onkeydown="if(event.key==='Enter') aplicarCoordsPaste()">
+        <button class="coord-paste-btn" onclick="aplicarCoordsPaste()">
+          <i class="ti ti-check" aria-hidden="true"></i> Aplicar
+        </button>
+      </div>
+      <div class="coord-paste-hint">
+        <i class="ti ti-brand-google-maps" aria-hidden="true"></i>
+        No Google Maps: clique com o <strong style="color:var(--tx0)">botão direito</strong> sobre o ponto exato
+        → as coordenadas aparecem no topo do menu → clique para copiar → cole aqui.
+      </div>
+    </div>
+
     <div class="map-estado" id="loc-loading" style="display:none">
       <i class="ti ti-loader" style="animation:spin 1s linear infinite"></i>
       <p>Obtendo localização via GPS…</p>
@@ -433,6 +482,8 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 <!-- ══ TELA 2 — MAPA GERAL ══ -->
 <section id="s-mapa" class="screen">
   <div class="mapa-wrap">
+
+    <!-- Linha 1: filtros + botão localização -->
     <div class="mapa-toolbar">
       <button class="chip on" onclick="filtroMapa('todos',this)">Todos</button>
       <button class="chip" onclick="filtroMapa('buraco',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D94646;margin-right:2px;vertical-align:middle"></span>Buracos</button>
@@ -440,21 +491,27 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
       <button class="chip" onclick="filtroMapa('protu',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2E7EC4;margin-right:2px;vertical-align:middle"></span>Protuberâncias</button>
       <button class="chip" onclick="filtroMapa('pendente',this)">⏳ Pendentes</button>
       <button class="chip" onclick="filtroMapa('resolvido',this)">✓ Resolvidos</button>
-      <button class="btn-gps" style="margin-left:auto;padding:6px 12px;font-size:12px" onclick="centralizarUsuario()"><i class="ti ti-current-location"></i> Minha localização</button>
+      <button class="btn-gps" style="padding:5px 12px;font-size:12px;flex-shrink:0;margin-left:auto" onclick="centralizarUsuario()"><i class="ti ti-current-location"></i> Minha localização</button>
     </div>
-    <div id="mapa-geral"></div>
+
+    <!-- Linha 2: legenda sempre abaixo dos filtros -->
     <div class="mapa-legenda">
-      <span style="font-size:11px;font-weight:600;color:var(--tx1)">LEGENDA:</span>
-      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#D94646"/><circle cx="9" cy="9" r="4" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="2.5 1.5"/></svg>Buraco</span>
-      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#D88A10"/><polyline points="5,8 9,12 13,8" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Afundamento</span>
-      <span class="leg-item"><svg width="16" height="20" viewBox="0 0 18 22"><path d="M9 0C4.03 0 0 4.03 0 9c0 6 9 13 9 13s9-7 9-13c0-4.97-4.03-9-9-9z" fill="#2E7EC4"/><polyline points="5,11 9,7 13,11" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Protuberância</span>
-      <span class="leg-item" style="gap:8px">
-        <span style="width:10px;height:10px;border-radius:50%;border:2px solid #D88A10;display:inline-block"></span>Pendente
-        <span style="width:10px;height:10px;border-radius:50%;border:2px solid #1A6AB8;display:inline-block"></span>Em execução
-        <span style="width:10px;height:10px;border-radius:50%;border:2px solid #0F6E56;display:inline-block"></span>Resolvido
-      </span>
-      <span class="leg-item"><span style="width:10px;height:10px;border-radius:50%;background:#1A6AB8;display:inline-block"></span>Você aqui</span>
+      <span style="font-size:11px;font-weight:600;color:var(--tx1);flex-shrink:0">LEGENDA:</span>
+      <span class="leg-item"><svg width="13" height="17" viewBox="0 0 20 26"><path d="M10 0C4.48 0 0 4.48 0 10c0 6.67 10 16 10 16S20 16.67 20 10C20 4.48 15.52 0 10 0z" fill="#D94646"/><circle cx="10" cy="10" r="7" fill="rgba(0,0,0,.15)"/><circle cx="10" cy="10" r="5" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 1.8"/></svg>Buraco</span>
+      <span class="leg-item"><svg width="13" height="17" viewBox="0 0 20 26"><path d="M10 0C4.48 0 0 4.48 0 10c0 6.67 10 16 10 16S20 16.67 20 10C20 4.48 15.52 0 10 0z" fill="#D88A10"/><circle cx="10" cy="10" r="7" fill="rgba(0,0,0,.15)"/><polyline points="5,8 10,13 15,8" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Afundamento</span>
+      <span class="leg-item"><svg width="13" height="17" viewBox="0 0 20 26"><path d="M10 0C4.48 0 0 4.48 0 10c0 6.67 10 16 10 16S20 16.67 20 10C20 4.48 15.52 0 10 0z" fill="#2E7EC4"/><circle cx="10" cy="10" r="7" fill="rgba(0,0,0,.15)"/><polyline points="5,13 10,8 15,13" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Protuberância</span>
+      <span style="font-size:11px;color:var(--tx2);margin:0 2px">|</span>
+      <span style="font-size:11px;font-weight:600;color:var(--tx1);flex-shrink:0">VERDE = resolvido:</span>
+      <span class="leg-item"><svg width="13" height="17" viewBox="0 0 20 26"><path d="M10 0C4.48 0 0 4.48 0 10c0 6.67 10 16 10 16S20 16.67 20 10C20 4.48 15.52 0 10 0z" fill="#1D9E75"/><circle cx="10" cy="10" r="7" fill="rgba(0,0,0,.15)"/><circle cx="10" cy="10" r="5" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 1.8"/></svg></span>
+      <span class="leg-item"><svg width="13" height="17" viewBox="0 0 20 26"><path d="M10 0C4.48 0 0 4.48 0 10c0 6.67 10 16 10 16S20 16.67 20 10C20 4.48 15.52 0 10 0z" fill="#1D9E75"/><circle cx="10" cy="10" r="7" fill="rgba(0,0,0,.15)"/><polyline points="5,8 10,13 15,8" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="leg-item"><svg width="13" height="17" viewBox="0 0 20 26"><path d="M10 0C4.48 0 0 4.48 0 10c0 6.67 10 16 10 16S20 16.67 20 10C20 4.48 15.52 0 10 0z" fill="#1D9E75"/><circle cx="10" cy="10" r="7" fill="rgba(0,0,0,.15)"/><polyline points="5,13 10,8 15,13" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span style="font-size:11px;color:var(--tx2);margin:0 2px">|</span>
+      <span class="leg-item"><span style="width:9px;height:9px;border-radius:50%;background:#1A6AB8;display:inline-block"></span>Você aqui</span>
     </div>
+
+    <!-- Linha 3: mapa ocupa todo espaço restante -->
+    <div id="mapa-geral"></div>
+
   </div>
 </section>
 
@@ -694,8 +751,21 @@ function go(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('s-' + name).classList.add('active');
   document.querySelectorAll('.tab-btn')[TABS[name]].classList.add('active');
+  /* Mapa ocupa 100% da janela no desktop */
+  document.body.classList.toggle('modo-mapa', name === 'mapa');
   if (name !== 'mapa') window.scrollTo({top:0, behavior:'smooth'});
-  if (name === 'mapa') iniciarMapaGeral();
+  if (name === 'mapa') {
+    iniciarMapaGeral();
+    /* Aguarda o CSS aplicar a largura antes de recalcular o tamanho */
+    requestAnimationFrame(() => { if (mG) mG.invalidateSize(); });
+  }
+  /* Preenche data/hora do dispositivo ao abrir a tela de resolução */
+  if (name === 'resolucao') {
+    const now = new Date();
+    document.getElementById('res-data').value = now.toISOString().split('T')[0];
+    document.getElementById('res-hora').value =
+      String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  }
 }
 
 /* ════════════════════════════════════════════════════════
@@ -871,6 +941,8 @@ function resetarFormulario() {
   document.getElementById('inp-email').value = '';
   document.getElementById('coord-banner').style.display = 'none';
   document.getElementById('tags-via').innerHTML = '';
+  const pasteInp = document.getElementById('inp-paste-coords');
+  pasteInp.value = ''; pasteInp.classList.remove('ok','err');
   mostrarEstadoF('loc-idle');
 }
 
@@ -975,6 +1047,48 @@ async function geocodificar(lat, lng) {
     document.getElementById('coord-txt').textContent = 'Localização confirmada — ' + (p.join(', ')||'').slice(0,55);
   } catch(_) { document.getElementById('inp-end').value = 'Endereço não identificado'; }
 }
+/* ════════════════════════════════════════════════════════
+   COLAGEM DE COORDENADAS DO GOOGLE MAPS
+   Aceita formatos: "-22.106714, -51.390421"
+                    "-22.106714598026688, -51.39042136351584"
+                    "-22.106714 -51.390421"  (espaço separando)
+════════════════════════════════════════════════════════ */
+function parseCoordsStr(str) {
+  /* Remove espaços extras e substitui vírgula decimal br (99,5 → não aplicável aqui)
+     mas mantém a vírgula como separador lat/lng */
+  const s = str.trim();
+  /* Tenta separar por vírgula seguida de espaço(s) ou só vírgula */
+  const partes = s.split(/,\s*|\s+/).map(p => p.trim()).filter(Boolean);
+  if (partes.length < 2) return null;
+  const lat = parseFloat(partes[0]);
+  const lng = parseFloat(partes[1]);
+  if (isNaN(lat) || isNaN(lng)) return null;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+  return { lat, lng };
+}
+
+function validarCoordsPaste(inp) {
+  const val = inp.value.trim();
+  if (!val) { inp.classList.remove('ok','err'); return; }
+  const coords = parseCoordsStr(val);
+  inp.classList.toggle('ok',  !!coords);
+  inp.classList.toggle('err', !coords);
+}
+
+function aplicarCoordsPaste() {
+  const inp = document.getElementById('inp-paste-coords');
+  const coords = parseCoordsStr(inp.value);
+  if (!coords) {
+    inp.classList.add('err');
+    inp.focus();
+    inp.placeholder = 'Formato inválido — ex: -22.106714, -51.390421';
+    return;
+  }
+  inp.classList.remove('err');
+  inp.classList.add('ok');
+  iniciarMapaForm(coords.lat, coords.lng);
+}
+
 function usarGPS() {
   if (!navigator.geolocation) { mostrarEstadoF('loc-erro'); return; }
   mostrarEstadoF('loc-loading');
@@ -1009,16 +1123,16 @@ function svgInterno(tipo) {
   return '';
 }
 function criarPin(tipo, status) {
-  const c = CORT[tipo]||'#888', b = CORD[status]||'#888';
+  /* Verde quando resolvido, cor do tipo nos demais casos */
+  const c = status === 'resolvido' ? '#1D9E75' : (CORT[tipo] || '#888');
   return L.divIcon({
     className:'',
-    html:`<div style="position:relative;filter:drop-shadow(0 2px 5px rgba(0,0,0,.45));cursor:pointer">
+    html:`<div style="filter:drop-shadow(0 2px 5px rgba(0,0,0,.45));cursor:pointer">
       <svg width="34" height="42" viewBox="0 0 20 26">
         <path d="M10 0C4.48 0 0 4.48 0 10c0 6.67 10 16 10 16S20 16.67 20 10C20 4.48 15.52 0 10 0z" fill="${c}"/>
         <circle cx="10" cy="10" r="7" fill="rgba(0,0,0,.15)"/>
         ${svgInterno(tipo)}
       </svg>
-      <div style="position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:${b};border:1.5px solid white"></div>
     </div>`,
     iconSize:[34,42], iconAnchor:[17,42], popupAnchor:[0,-44]
   });
