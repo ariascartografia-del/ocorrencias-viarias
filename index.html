@@ -607,6 +607,12 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
     <div class="action-row" style="margin-top:4px">
       <button class="act-btn" onclick="abrirResolucao()"><i class="ti ti-circle-check"></i> Registrar resolução</button>
     </div>
+    <div class="action-row" style="margin-top:6px">
+      <button class="act-btn" id="btn-excluir" onclick="excluirOcorrencia()"
+        style="color:var(--cd);border-color:var(--bdd);flex:1">
+        <i class="ti ti-trash"></i> Excluir ocorrência
+      </button>
+    </div>
   </div>
 </aside>
 
@@ -1186,7 +1192,34 @@ function abrirResolucao() {
   go('resolucao');
 }
 
-/* ── Confirmar resolução → ImgBB (foto) + Firestore (dados) ── */
+/* ── Excluir ocorrência do Firestore ── */
+async function excluirOcorrencia() {
+  if (!FIREBASE_OK || !_pidDocId) return;
+  const oc = OCS.find(o => o._docId === _pidDocId);
+  const proto = oc?.protocolo || _pidDocId.slice(-6);
+
+  const confirmado = confirm(
+    `⚠️ Excluir ocorrência #${proto}?\n\n` +
+    `Endereço: ${oc?.endereco || '—'}\n` +
+    `Tipo: ${LTIPO[oc?.tipo] || '—'}\n\n` +
+    `Esta ação não pode ser desfeita.`
+  );
+  if (!confirmado) return;
+
+  const btn = document.getElementById('btn-excluir');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Excluindo…';
+
+  try {
+    await db.collection('ocorrencias').doc(_pidDocId).delete();
+    fecharPainel();
+    toast(`🗑️ Ocorrência #${proto} excluída`);
+  } catch(e) {
+    alert('Erro ao excluir: ' + e.message);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-trash"></i> Excluir ocorrência';
+  }
+}
 async function confirmarResolucao() {
   if (!FIREBASE_OK || !_pidDocId) { alert('Selecione uma ocorrência no painel primeiro.'); return; }
   if (!fotoResArq) { alert('Anexe a foto do reparo antes de confirmar.'); return; }
