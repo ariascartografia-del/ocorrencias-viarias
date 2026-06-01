@@ -15,7 +15,7 @@
   --ci:#185FA5;--bgi:#E6F1FB;--bdi:rgba(55,138,221,.4);
   --cs:#0F6E56;--bgs:#E1F5EE;--bds:rgba(29,158,117,.4);
   --cw:#7A4508;--bgw:#FEF0D6;--bdw:rgba(239,159,39,.5);
-  --cd:#9B2626;--bgd:#020202;--bdd:rgba(226,75,74,.4);
+  --cd:#9B2626;--bgd:#FCEAEA;--bdd:rgba(226,75,74,.4);
   --cp:#3C3489;--bgp:#EEEDFE;--bdp:rgba(127,119,221,.4);
   --tb-bg:#FCEAEA;--tb-bd:#D94646;--tb-tx:#6E1A1A;--tb-ic:#C03030;
   --ta-bg:#FEF0D6;--ta-bd:#D88A10;--ta-tx:#6B3A04;--ta-ic:#B06A08;
@@ -416,7 +416,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
           <i class="ti ti-camera"></i>
           <span>Foto 1 *</span>
         </label>
-        <input type="file" id="foto-1" accept="image/*" capture="environment" onchange="selecionarFoto(1,this)">
+        <input type="file" id="foto-1" accept="image/*" onchange="selecionarFoto(1,this)">
         <div class="foto-preview" id="prev-1"></div>
         <div class="foto-ok" id="ok-1"><i class="ti ti-check" style="color:white;font-size:22px"></i></div>
       </div>
@@ -425,7 +425,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
           <i class="ti ti-plus"></i>
           <span>Foto 2</span>
         </label>
-        <input type="file" id="foto-2" accept="image/*" capture="environment" onchange="selecionarFoto(2,this)">
+        <input type="file" id="foto-2" accept="image/*" onchange="selecionarFoto(2,this)">
         <div class="foto-preview" id="prev-2"></div>
         <div class="foto-ok" id="ok-2"><i class="ti ti-check" style="color:white;font-size:22px"></i></div>
       </div>
@@ -434,7 +434,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
           <i class="ti ti-plus"></i>
           <span>Foto 3</span>
         </label>
-        <input type="file" id="foto-3" accept="image/*" capture="environment" onchange="selecionarFoto(3,this)">
+        <input type="file" id="foto-3" accept="image/*" onchange="selecionarFoto(3,this)">
         <div class="foto-preview" id="prev-3"></div>
         <div class="foto-ok" id="ok-3"><i class="ti ti-check" style="color:white;font-size:22px"></i></div>
       </div>
@@ -573,7 +573,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
             <i class="ti ti-camera-plus" style="font-size:24px;color:var(--cs)"></i>
             <span style="color:var(--cs)">Tirar foto</span>
           </label>
-          <input type="file" id="res-foto" accept="image/*" capture="environment" onchange="selecionarFotoRes(this)">
+          <input type="file" id="res-foto" accept="image/*" onchange="selecionarFotoRes(this)">
           <div class="foto-preview" id="res-prev"></div>
           <div class="foto-ok" id="res-ok"><i class="ti ti-check" style="color:white;font-size:22px"></i></div>
         </div>
