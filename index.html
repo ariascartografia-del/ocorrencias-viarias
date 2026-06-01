@@ -341,15 +341,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
   <div class="card">
     <div class="sec"><i class="ti ti-map-pin"></i> Localização</div>
 
-    <!-- Estado: aguardando ação -->
-    <div class="map-estado" id="loc-idle">
-      <i class="ti ti-map-2"></i>
-      <p>Marque o local exato no mapa satelital.<br>Quanto mais preciso, menos deslocamento da equipe.</p>
-      <button class="btn-gps" onclick="usarGPS()"><i class="ti ti-current-location"></i> Usar minha localização</button>
-      <small>ou <a class="link" onclick="abrirMapaManual()" style="cursor:pointer">posicionar manualmente no mapa</a></small>
-    </div>
-
-    <!-- Painel de colagem de coordenadas (sempre visível) -->
+    <!-- Painel de colagem — sempre no topo, posição fixa independente do estado -->
     <div class="coord-paste-panel">
       <div class="coord-paste-label">
         <i class="ti ti-map-pin-2" aria-hidden="true"></i>
@@ -369,6 +361,14 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
         No Google Maps: clique com o <strong style="color:var(--tx0)">botão direito</strong> sobre o ponto exato
         → as coordenadas aparecem no topo do menu → clique para copiar → cole aqui.
       </div>
+    </div>
+
+    <!-- Estado: aguardando ação -->
+    <div class="map-estado" id="loc-idle">
+      <i class="ti ti-map-2"></i>
+      <p>Ou marque o local no mapa satelital.<br>Quanto mais preciso, menos deslocamento da equipe.</p>
+      <button class="btn-gps" onclick="usarGPS()"><i class="ti ti-current-location"></i> Usar minha localização</button>
+      <small>ou <a class="link" onclick="abrirMapaManual()" style="cursor:pointer">posicionar manualmente no mapa</a></small>
     </div>
 
     <div class="map-estado" id="loc-loading" style="display:none">
