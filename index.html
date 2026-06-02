@@ -231,7 +231,9 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 .popup-body{font-size:12px;color:#6b6a64;line-height:1.5;margin-bottom:10px}
 .popup-addr{font-size:12px;font-weight:500;color:#1c1c1a;margin-bottom:4px;display:flex;align-items:center;gap:5px}
 .popup-meta{font-size:11px;color:#9c9a92;margin-bottom:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.popup-foto{width:100%;height:80px;border-radius:6px;margin-bottom:10px;background-size:cover;background-position:center;background-color:#eee;display:none}
+.popup-foto{width:100%;height:130px;border-radius:6px;margin-bottom:10px;background-size:cover;background-position:center;background-color:#eee;display:none;position:relative;overflow:hidden}
+/* Ícone de lupa sobre a foto para indicar que é clicável */
+.popup-foto::after{content:"🔍";position:absolute;bottom:6px;right:8px;font-size:16px;opacity:.85;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .popup-footer{display:flex;gap:6px}
 .popup-btn{flex:1;padding:7px 0;border-radius:6px;border:.5px solid rgba(0,0,0,.15);font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:#1c1c1a;display:flex;align-items:center;justify-content:center;gap:5px}
 .popup-btn.primary{background:#1A6AB8;color:#fff;border-color:transparent}
@@ -1245,7 +1247,7 @@ function criarPin(tipo, status) {
 function popupHTML(oc) {
   const gc = oc.gravidade==='alta'?'#9B2626':oc.gravidade==='media'?'#7A4508':'#0F6E56';
   const fotoEl = oc.fotos && oc.fotos[0]
-    ? `<div class="popup-foto foto-clicavel" style="display:block;background-image:url(${oc.fotos[0]})" onclick="event.stopPropagation();abrirLightbox(${JSON.stringify(oc.fotos)},0)" title="Clique para ampliar"></div>` : '';
+    ? `<div class="popup-foto foto-clicavel" data-fotos='${JSON.stringify(oc.fotos)}' style="display:block;background-image:url(${oc.fotos[0]})" title="Clique para ampliar"></div>` : '';
   return `<div class="popup-card">
     <div class="popup-header">
       <div class="popup-tipo">${LTIPO[oc.tipo]||oc.tipo}</div>
@@ -1290,6 +1292,20 @@ function iniciarMapaGeral() {
       const { lat, lng } = e.latlng;
       desativarNovaDenuncia();
       novaDenunciaNoMapa(lat, lng);
+    });
+
+    /* Após o popup ser montado no DOM, anexa o click na foto */
+    mG.on('popupopen', e => {
+      const fotoEl = e.popup.getElement()?.querySelector('.popup-foto[data-fotos]');
+      if (!fotoEl) return;
+      try {
+        const fotos = JSON.parse(fotoEl.dataset.fotos);
+        fotoEl.style.cursor = 'zoom-in';
+        fotoEl.addEventListener('click', ev => {
+          ev.stopPropagation();
+          abrirLightbox(fotos, 0);
+        }, { once: true });
+      } catch(_) {}
     });
 
     mGok = true;
