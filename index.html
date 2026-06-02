@@ -68,7 +68,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 .btn-nova-denuncia:hover{background:var(--bgd)}
 .btn-nova-denuncia.ativo{background:var(--cd);color:#fff;border-color:var(--cd)}
 /* Barra de instrução que aparece quando o modo está ativo */
-.hint-nova-denuncia{display:none;align-items:center;gap:8px;background:#A32D2D;color:#fff;padding:7px 14px;font-size:12px;font-weight:500;flex-shrink:0;z-index:10;animation:pulse .8s ease-in-out infinite}
+.hint-nova-denuncia{display:none;align-items:center;gap:8px;background:#A32D2D;color:#fff;padding:7px 14px;font-size:12px;font-weight:500;flex-shrink:0;z-index:10}
 .hint-nova-denuncia.show{display:flex}
 /* Cursor crosshair no mapa quando modo ativo */
 #mapa-geral.modo-clicar{cursor:crosshair!important}
@@ -291,8 +291,8 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
       <span>Ocorrências viárias</span>
     </div>
     <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="go('form')"><i class="ti ti-alert-triangle"></i> Denunciar</button>
       <button class="tab-btn" onclick="go('mapa')"><i class="ti ti-map"></i> Mapa geral</button>
+      <button class="tab-btn active" onclick="go('form')"><i class="ti ti-alert-triangle"></i> Denunciar</button>
       <button class="tab-btn" onclick="go('painel')"><i class="ti ti-layout-dashboard"></i> Painel</button>
       <button class="tab-btn" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Resolução</button>
     </nav>
@@ -787,7 +787,7 @@ function iniciarListeners() {
 /* ════════════════════════════════════════════════════════
    NAVEGAÇÃO
 ════════════════════════════════════════════════════════ */
-const TABS = {form:0, mapa:1, painel:2, resolucao:3};
+const TABS = {mapa:0, form:1, painel:2, resolucao:3};
 function go(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
