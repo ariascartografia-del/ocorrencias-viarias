@@ -239,6 +239,19 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 /* config banner */
 .config-banner{background:#FEF3C7;border:.5px solid #D97706;border-radius:var(--r2);padding:12px 14px;margin-bottom:16px;font-size:12px;color:#92400E;line-height:1.6;display:flex;gap:8px}
 .config-banner i{font-size:18px;flex-shrink:0;margin-top:1px}
+/* ── LIGHTBOX ── */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:10000;align-items:center;justify-content:center;cursor:zoom-out}
+.lightbox.show{display:flex}
+.lightbox-img{max-width:92vw;max-height:88vh;border-radius:var(--r2);object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.6);cursor:default}
+.lightbox-close{position:fixed;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:1}
+.lightbox-close:hover{background:rgba(255,255,255,.28)}
+.lightbox-counter{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.7);font-size:13px;font-family:var(--font)}
+.lightbox-nav{position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.lightbox-nav:hover{background:rgba(255,255,255,.28)}
+.lightbox-prev{left:14px}.lightbox-next{right:14px}
+/* Deixa clicável qualquer foto exibida no sistema */
+.foto-clicavel{cursor:zoom-in!important;transition:opacity .15s}
+.foto-clicavel:hover{opacity:.88}
 #toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1c1a;color:#e2e0d8;padding:10px 20px;border-radius:var(--r2);font-size:13px;z-index:9999;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.3)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
@@ -675,7 +688,14 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 
 <div id="toast"></div>
 
-<!-- ══ FIREBASE SDK ══ -->
+<!-- ══ LIGHTBOX ══ -->
+<div class="lightbox" id="lightbox" onclick="fecharLightbox(event)">
+  <button class="lightbox-close" onclick="fecharLightboxBtn()" aria-label="Fechar">×</button>
+  <button class="lightbox-nav lightbox-prev" id="lb-prev" onclick="navLightbox(-1,event)" aria-label="Anterior">&#8249;</button>
+  <img class="lightbox-img" id="lightbox-img" src="" alt="Foto da ocorrência">
+  <button class="lightbox-nav lightbox-next" id="lb-next" onclick="navLightbox(1,event)" aria-label="Próxima">&#8250;</button>
+  <div class="lightbox-counter" id="lb-counter"></div>
+</div>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <!-- Storage: ImgBB (gratuito, sem cartão) -->
@@ -972,10 +992,11 @@ function atualizarPainel() {
     return;
   }
   lista.innerHTML = OCS.slice(0, 15).map(oc => {
-    const thumb = oc.fotos && oc.fotos[0]
-      ? `style="background-image:url(${oc.fotos[0]});background-size:cover;background-position:center"`
-      : '';
-    const icone = !oc.fotos || !oc.fotos[0]
+    const fotos = oc.fotos && oc.fotos.length ? oc.fotos : null;
+    const thumb = fotos
+      ? `style="background-image:url(${fotos[0]});background-size:cover;background-position:center" class="rphoto foto-clicavel" onclick="event.stopPropagation();abrirLightbox(${JSON.stringify(fotos)},0)"`
+      : `class="rphoto"`;
+    const icone = !fotos
       ? `<i class="ti ti-${oc.tipo==='buraco'?'circle-dashed':oc.tipo==='afunda'?'trending-down':'trending-up'}" style="color:${CORT[oc.tipo]}"></i>`
       : '';
     return `<div class="report-item" onclick="abrirPainel('${oc._docId}',false)">
@@ -1140,7 +1161,7 @@ function criarPin(tipo, status) {
 function popupHTML(oc) {
   const gc = oc.gravidade==='alta'?'#9B2626':oc.gravidade==='media'?'#7A4508':'#0F6E56';
   const fotoEl = oc.fotos && oc.fotos[0]
-    ? `<div class="popup-foto" style="display:block;background-image:url(${oc.fotos[0]})"></div>` : '';
+    ? `<div class="popup-foto foto-clicavel" style="display:block;background-image:url(${oc.fotos[0]})" onclick="event.stopPropagation();abrirLightbox(${JSON.stringify(oc.fotos)},0)" title="Clique para ampliar"></div>` : '';
   return `<div class="popup-card">
     <div class="popup-header">
       <div class="popup-tipo">${LTIPO[oc.tipo]||oc.tipo}</div>
@@ -1237,13 +1258,16 @@ function abrirPainel(docId, editar) {
   document.getElementById('p-obs').value         = oc.observacao || '';
   document.getElementById('p-edit').style.display = editar ? '' : 'none';
 
-  // Foto no painel
+  // Foto no painel — clicável para lightbox
   const fotoEl = document.getElementById('p-foto');
   if (oc.fotos && oc.fotos[0]) {
     fotoEl.style.backgroundImage = `url(${oc.fotos[0]})`;
     fotoEl.innerHTML = '';
+    tornarClicavel(fotoEl, oc.fotos, 0);
   } else {
     fotoEl.style.backgroundImage = '';
+    fotoEl.classList.remove('foto-clicavel');
+    fotoEl.onclick = null;
     fotoEl.innerHTML = '<i class="ti ti-photo" style="font-size:32px;color:var(--tx2)"></i>';
   }
 
@@ -1394,6 +1418,60 @@ function filtrar(el) {
 document.querySelectorAll('.tipo-card').forEach(c => c.addEventListener('keydown', e => {
   if (e.key==='Enter'||e.key===' ') { e.preventDefault(); selTipo(c); }
 }));
+
+/* ════════════════════════════════════════════════════════
+   LIGHTBOX — abre foto em tela cheia com navegação
+════════════════════════════════════════════════════════ */
+let _lbFotos = [];   // array de URLs da ocorrência atual
+let _lbIdx   = 0;   // índice da foto exibida
+
+function abrirLightbox(urls, idx) {
+  if (!urls || !urls.length) return;
+  _lbFotos = urls;
+  _lbIdx   = idx || 0;
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('show');
+  document.addEventListener('keydown', lightboxTeclado);
+}
+
+function renderLightbox() {
+  const img = document.getElementById('lightbox-img');
+  img.src   = _lbFotos[_lbIdx];
+  const multi = _lbFotos.length > 1;
+  document.getElementById('lb-prev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('lb-next').style.display = multi ? 'flex' : 'none';
+  document.getElementById('lb-counter').textContent =
+    multi ? `${_lbIdx + 1} / ${_lbFotos.length}` : '';
+}
+
+function navLightbox(dir, e) {
+  e && e.stopPropagation();
+  _lbIdx = (_lbIdx + dir + _lbFotos.length) % _lbFotos.length;
+  renderLightbox();
+}
+
+function fecharLightbox(e) {
+  /* Fecha ao clicar no fundo, mas não na imagem nem nos botões */
+  if (e.target.id === 'lightbox') _fecharLb();
+}
+function fecharLightboxBtn() { _fecharLb(); }
+function _fecharLb() {
+  document.getElementById('lightbox').classList.remove('show');
+  document.getElementById('lightbox-img').src = '';
+  document.removeEventListener('keydown', lightboxTeclado);
+}
+function lightboxTeclado(e) {
+  if (e.key === 'Escape')      _fecharLb();
+  if (e.key === 'ArrowRight')  navLightbox(1);
+  if (e.key === 'ArrowLeft')   navLightbox(-1);
+}
+
+/* Torna clicável um elemento com background-image */
+function tornarClicavel(el, urls, idx) {
+  if (!urls || !urls.length) return;
+  el.classList.add('foto-clicavel');
+  el.onclick = (e) => { e.stopPropagation(); abrirLightbox(urls, idx || 0); };
+}
 </script>
 </body>
 </html>
