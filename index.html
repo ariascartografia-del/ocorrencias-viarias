@@ -840,11 +840,71 @@ function selecionarFotoRes(input) {
 }
 
 /* ════════════════════════════════════════════════════════
-   UPLOAD DE FOTO — ImgBB (gratuito, sem Firebase Storage)
+   COMPRESSÃO DE IMAGEM — Canvas API (sem biblioteca externa)
+   ─────────────────────────────────────────────────────────
+   Estratégia:
+   • Redimensiona para no máximo MAX_PX no lado maior
+   • Exporta como JPEG com qualidade JPEG_Q
+   • Resultado típico: foto de 10 MB → 200–500 KB
+   • Mantém nitidez aceitável para identificar o buraco
+════════════════════════════════════════════════════════ */
+const MAX_PX  = 1600;   // lado máximo em pixels
+const JPEG_Q  = 0.82;   // qualidade JPEG 0–1 (0.82 ≈ boa nitidez, ~80% menor)
+
+async function comprimirFoto(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+
+      /* Calcula dimensões mantendo proporção */
+      let { width, height } = img;
+      if (width > MAX_PX || height > MAX_PX) {
+        if (width >= height) { height = Math.round(height * MAX_PX / width);  width = MAX_PX; }
+        else                 { width  = Math.round(width  * MAX_PX / height); height = MAX_PX; }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width  = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      /* Fundo branco (evita canal alpha quebrando JPEG) */
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(blob => {
+        if (!blob) { reject(new Error('Falha ao comprimir')); return; }
+        /* Cria File com nome .jpg para o ImgBB */
+        const nomeBase = file.name.replace(/\.[^.]+$/, '');
+        const compressed = new File([blob], `${nomeBase}_c.jpg`, { type: 'image/jpeg' });
+
+        /* Log de diagnóstico (visível no console do navegador) */
+        console.log(
+          `Compressão: ${(file.size/1024/1024).toFixed(1)} MB → ` +
+          `${(compressed.size/1024).toFixed(0)} KB ` +
+          `(${Math.round(100 - compressed.size/file.size*100)}% menor) ` +
+          `${width}×${height}px`
+        );
+        resolve(compressed);
+      }, 'image/jpeg', JPEG_Q);
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   UPLOAD DE FOTO — comprime → ImgBB
    Converte o arquivo para base64 e envia à API do ImgBB.
    Retorna a URL pública da imagem.
 ════════════════════════════════════════════════════════ */
 async function uploadFoto(file) {
+  /* 1. Comprime antes de enviar */
+  const fileEnviar = await comprimirFoto(file);
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = async () => {
@@ -853,7 +913,7 @@ async function uploadFoto(file) {
         const form   = new FormData();
         form.append('key',   IMGBB_KEY);
         form.append('image', base64);
-        form.append('name',  `${Date.now()}_${file.name}`);
+        form.append('name',  `${Date.now()}_${fileEnviar.name}`);
 
         const resp = await fetch('https://api.imgbb.com/1/upload', {
           method: 'POST',
@@ -865,7 +925,7 @@ async function uploadFoto(file) {
       } catch(e) { reject(e); }
     };
     reader.onerror = reject;
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(fileEnviar);
   });
 }
 
@@ -886,7 +946,7 @@ async function enviarDenuncia() {
 
   try {
     /* 1. Upload das fotos no ImgBB */
-    mostrarLoading('Enviando fotos…');
+    mostrarLoading('Comprimindo e enviando fotos…');
     const fotoUrls = [];
     for (const file of fotosArq.filter(Boolean)) {
       const url = await uploadFoto(file);
