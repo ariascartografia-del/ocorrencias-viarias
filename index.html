@@ -63,6 +63,16 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 @media(max-width:560px){#s-mapa.active{height:calc(100vh - 90px)}}
 .mapa-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden}
 .mapa-toolbar{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:6px 10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0;z-index:10}
+/* Botão "Nova denúncia no mapa" */
+.btn-nova-denuncia{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--r2);border:.5px solid var(--bdd);background:transparent;color:var(--cd);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;flex-shrink:0}
+.btn-nova-denuncia:hover{background:var(--bgd)}
+.btn-nova-denuncia.ativo{background:var(--cd);color:#fff;border-color:var(--cd)}
+/* Barra de instrução que aparece quando o modo está ativo */
+.hint-nova-denuncia{display:none;align-items:center;gap:8px;background:#A32D2D;color:#fff;padding:7px 14px;font-size:12px;font-weight:500;flex-shrink:0;z-index:10;animation:pulse .8s ease-in-out infinite}
+.hint-nova-denuncia.show{display:flex}
+/* Cursor crosshair no mapa quando modo ativo */
+#mapa-geral.modo-clicar{cursor:crosshair!important}
+#mapa-geral.modo-clicar .leaflet-interactive{cursor:crosshair!important}
 .mapa-legenda{background:var(--bg0);border-bottom:.5px solid var(--bd0);padding:5px 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0;z-index:10}
 #mapa-geral{flex:1;z-index:1;min-height:0}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx1)}
@@ -505,6 +515,16 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
       <button class="chip" onclick="filtroMapa('pendente',this)">⏳ Pendentes</button>
       <button class="chip" onclick="filtroMapa('resolvido',this)">✓ Resolvidos</button>
       <button class="btn-gps" style="padding:5px 12px;font-size:12px;flex-shrink:0;margin-left:auto" onclick="centralizarUsuario()"><i class="ti ti-current-location"></i> Minha localização</button>
+      <button class="btn-nova-denuncia" id="btn-nova-den" onclick="toggleNovaDenuncia()">
+        <i class="ti ti-map-pin-plus"></i> Nova denúncia
+      </button>
+    </div>
+
+    <!-- Barra de instrução — aparece só quando o modo Nova Denúncia está ativo -->
+    <div class="hint-nova-denuncia" id="hint-nova-den">
+      <i class="ti ti-hand-finger" style="font-size:16px;flex-shrink:0"></i>
+      Clique no mapa no local exato do problema para abrir o formulário
+      <button onclick="toggleNovaDenuncia()" style="margin-left:auto;background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:4px;padding:2px 10px;cursor:pointer;font-size:12px;flex-shrink:0">Cancelar</button>
     </div>
 
     <!-- Linha 2: legenda sempre abaixo dos filtros -->
@@ -773,7 +793,11 @@ function go(name) {
   document.querySelectorAll('.tab-btn')[TABS[name]].classList.add('active');
   /* Mapa ocupa 100% da janela no desktop */
   document.body.classList.toggle('modo-mapa', name === 'mapa');
-  if (name !== 'mapa') window.scrollTo({top:0, behavior:'smooth'});
+  if (name !== 'mapa') {
+    window.scrollTo({top:0, behavior:'smooth'});
+    /* Garante que o modo de nova denúncia é cancelado ao sair do mapa */
+    if (_modoNovaDen) desativarNovaDenuncia();
+  }
   if (name === 'mapa') {
     iniciarMapaGeral();
     /* Aguarda o CSS aplicar a largura antes de recalcular o tamanho */
@@ -1259,11 +1283,56 @@ function iniciarMapaGeral() {
     mG = L.map('mapa-geral', {center:[-22.1209,-51.3883], zoom:14, zoomControl:true});
     addSatelite(mG);
     layerG = L.layerGroup().addTo(mG);
+
+    /* Clique no mapa — só age quando modo Nova Denúncia está ativo */
+    mG.on('click', e => {
+      if (!_modoNovaDen) return;
+      const { lat, lng } = e.latlng;
+      desativarNovaDenuncia();
+      novaDenunciaNoMapa(lat, lng);
+    });
+
     mGok = true;
     obterLocUsuario();
   }
   renderPins();
   setTimeout(() => mG.invalidateSize(), 150);
+}
+
+/* ── Nova denúncia a partir do mapa ── */
+let _modoNovaDen = false;
+
+function toggleNovaDenuncia() {
+  _modoNovaDen ? desativarNovaDenuncia() : ativarNovaDenuncia();
+}
+function ativarNovaDenuncia() {
+  _modoNovaDen = true;
+  document.getElementById('btn-nova-den').classList.add('ativo');
+  document.getElementById('hint-nova-den').classList.add('show');
+  document.getElementById('mapa-geral').classList.add('modo-clicar');
+  /* Fecha qualquer popup aberto para não confundir */
+  if (mG) mG.closePopup();
+}
+function desativarNovaDenuncia() {
+  _modoNovaDen = false;
+  document.getElementById('btn-nova-den').classList.remove('ativo');
+  document.getElementById('hint-nova-den').classList.remove('show');
+  document.getElementById('mapa-geral').classList.remove('modo-clicar');
+}
+function novaDenunciaNoMapa(lat, lng) {
+  /* Preenche o campo de colagem com as coordenadas clicadas */
+  const inp = document.getElementById('inp-paste-coords');
+  inp.value = `${lat.toFixed(8)}, ${lng.toFixed(8)}`;
+  inp.classList.add('ok');
+  inp.classList.remove('err');
+
+  /* Navega para o formulário e abre o mapa já centrado no ponto */
+  go('form');
+  /* Pequeno delay para aguardar a tela renderizar */
+  setTimeout(() => {
+    iniciarMapaForm(lat, lng);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 100);
 }
 function obterLocUsuario() {
   if (!navigator.geolocation) return;
