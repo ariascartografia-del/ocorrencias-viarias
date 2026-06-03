@@ -291,8 +291,8 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
       <span>Ocorrências viárias</span>
     </div>
     <nav class="nav-tabs">
-      <button class="tab-btn" onclick="go('mapa')"><i class="ti ti-map"></i> Mapa geral</button>
-      <button class="tab-btn active" onclick="go('form')"><i class="ti ti-alert-triangle"></i> Denunciar</button>
+      <button class="tab-btn active" onclick="go('mapa')"><i class="ti ti-map"></i> Mapa geral</button>
+      <button class="tab-btn" onclick="go('form')"><i class="ti ti-alert-triangle"></i> Denunciar</button>
       <button class="tab-btn" onclick="go('painel')"><i class="ti ti-layout-dashboard"></i> Painel</button>
       <button class="tab-btn" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Resolução</button>
     </nav>
@@ -302,7 +302,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 <main class="app-body">
 
 <!-- ══ TELA 1 — FORMULÁRIO ══ -->
-<section id="s-form" class="screen active">
+<section id="s-form" class="screen">
 
   <!-- banner de configuração — some após configurar Firebase -->
   <div class="config-banner" id="cfg-banner">
@@ -505,7 +505,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 
 
 <!-- ══ TELA 2 — MAPA GERAL ══ -->
-<section id="s-mapa" class="screen">
+<section id="s-mapa" class="screen active">
   <div class="mapa-wrap">
 
     <!-- Linha 1: filtros + botão localização -->
@@ -1563,6 +1563,10 @@ function filtrar(el) {
 document.querySelectorAll('.tipo-card').forEach(c => c.addEventListener('keydown', e => {
   if (e.key==='Enter'||e.key===' ') { e.preventDefault(); selTipo(c); }
 }));
+
+/* Inicializa o mapa ao carregar — é a tela principal */
+document.body.classList.add('modo-mapa');
+window.addEventListener('load', () => iniciarMapaGeral());
 
 /* ════════════════════════════════════════════════════════
    LIGHTBOX — abre foto em tela cheia com navegação
