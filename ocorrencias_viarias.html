@@ -48,6 +48,14 @@ body{font-family:var(--font);background:var(--bg2);color:var(--tx0);min-height:1
 .tab-btn{flex-shrink:0;font-size:13px;padding:0 14px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--tx1);cursor:pointer;display:flex;align-items:center;gap:6px;transition:color .15s;white-space:nowrap;height:52px}
 .tab-btn:hover{color:var(--tx0)}
 .tab-btn.active{color:var(--ci);border-bottom-color:var(--ci);font-weight:500}
+/* ── ACESSO DA EQUIPE ── */
+body:not(.is-equipe) .so-equipe{display:none !important}
+.btn-login{flex-shrink:0;margin-left:auto;align-self:center;font-size:12px;padding:5px 12px;border:.5px solid var(--bd1);border-radius:var(--r2);background:transparent;color:var(--tx1);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-login:hover{color:var(--tx0)}
+.login-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9500;display:none;align-items:center;justify-content:center;padding:16px}
+.login-modal.show{display:flex}
+.login-box{background:var(--bg0);border-radius:var(--r3);padding:20px;width:100%;max-width:340px}
+.login-erro{color:var(--cd);font-size:12px;min-height:16px;margin-bottom:6px}
 /* Mobile: empilha título acima das abas */
 @media(max-width:560px){
   .header-inner{flex-direction:column;align-items:flex-start;padding:0}
@@ -294,7 +302,8 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
       <button class="tab-btn active" onclick="go('mapa')"><i class="ti ti-map"></i> Mapa geral</button>
       <button class="tab-btn" onclick="go('form')"><i class="ti ti-alert-triangle"></i> Denunciar</button>
       <button class="tab-btn" onclick="go('painel')"><i class="ti ti-layout-dashboard"></i> Painel</button>
-      <button class="tab-btn" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Resolução</button>
+      <button class="tab-btn so-equipe" onclick="go('resolucao')"><i class="ti ti-circle-check"></i> Resolução</button>
+      <button class="btn-login" id="btn-login" onclick="cliqueLogin()"><i class="ti ti-lock"></i> <span id="btn-login-txt">Equipe</span></button>
     </nav>
   </div>
 </header>
@@ -487,17 +496,17 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 
   <div class="card">
     <div class="sec"><i class="ti ti-user"></i> Seus dados</div>
-    <div class="row2">
-      <div class="field"><label>Nome completo</label><input id="inp-nome" type="text" placeholder="João da Silva"></div>
-      <div class="field"><label>CPF</label><input id="inp-cpf" type="text" placeholder="000.000.000-00"></div>
-      <div class="field"><label>Telefone / WhatsApp</label><input id="inp-tel" type="tel" placeholder="(18) 99999-0000"></div>
-      <div class="field"><label>E-mail</label><input id="inp-email" type="email" placeholder="joao@email.com"></div>
+    <div class="row2" id="dados-pessoais">
+      <div class="field full"><label>Nome (opcional)</label><input id="inp-nome" type="text" maxlength="120" placeholder="João da Silva"></div>
+      <div class="field"><label>Telefone / WhatsApp (opcional)</label><input id="inp-tel" type="tel" maxlength="30" placeholder="(18) 99999-0000"></div>
+      <div class="field"><label>E-mail (opcional)</label><input id="inp-email" type="email" maxlength="120" placeholder="joao@email.com"></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx1);margin-bottom:10px">
-      <input type="checkbox" id="anon" style="width:auto;cursor:pointer">
-      <label for="anon" style="cursor:pointer">Denúncia anônima – meus dados não serão exibidos publicamente</label>
+      <input type="checkbox" id="anon" style="width:auto;cursor:pointer" onchange="toggleAnonimo(this)">
+      <label for="anon" style="cursor:pointer">Denúncia anônima – não enviar meus dados</label>
     </div>
-    <div class="info-box" style="margin-bottom:4px"><i class="ti ti-clock"></i> Após o envio você receberá um <strong style="color:var(--tx0)">número de protocolo</strong> por e-mail/SMS.</div>
+    <div class="info-box" style="margin-bottom:8px"><i class="ti ti-shield-lock"></i> <strong style="color:var(--tx0)">Privacidade:</strong> nome, telefone e e-mail servem só para a equipe da prefeitura entrar em contato sobre esta ocorrência. Eles não aparecem no mapa nem no painel público e só a equipe autorizada tem acesso. As fotos, o local e a descrição ficam públicos: evite fotografar rostos e placas de veículos.</div>
+    <div class="info-box" style="margin-bottom:4px"><i class="ti ti-clock"></i> Ao enviar, aparece na tela um <strong style="color:var(--tx0)">número de protocolo</strong>. Anote-o para acompanhar a ocorrência no mapa.</div>
     <button class="btn-primary" id="btn-enviar" onclick="enviarDenuncia()"><i class="ti ti-send"></i> Enviar denúncia</button>
   </div>
 
@@ -553,6 +562,15 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 
 <!-- ══ TELA 3 — PAINEL ══ -->
 <section id="s-painel" class="screen">
+  <div class="config-banner so-equipe" id="migra-banner" style="display:none">
+    <i class="ti ti-shield-lock"></i>
+    <div>
+      <strong><span id="migra-qtd">0</span> ocorrência(s) antigas ainda têm dados pessoais no documento público.</strong><br>
+      A migração move nome, telefone e e-mail para a área restrita da equipe e apaga esses campos (e o CPF) da ocorrência.
+      Em denúncias marcadas como anônimas, os dados são descartados.<br>
+      <button class="act-btn" style="margin-top:8px;flex:none" id="btn-migrar" onclick="migrarDadosAntigos()"><i class="ti ti-arrows-transfer-down"></i> Migrar agora</button>
+    </div>
+  </div>
   <div class="stat-grid">
     <div class="stat-card"><div class="stat-num" id="cnt-total">—</div><div class="stat-lbl">Total</div></div>
     <div class="stat-card"><div class="stat-num" id="cnt-pend" style="color:var(--cw)">—</div><div class="stat-lbl">Pendentes</div></div>
@@ -664,15 +682,17 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
       <table class="info-table">
         <tr><td class="ik">Gravidade</td><td class="iv" id="p-grav"></td></tr>
         <tr><td class="ik">Data</td><td class="iv" id="p-data"></td></tr>
-        <tr><td class="ik">Denunciante</td><td class="iv" id="p-den"></td></tr>
         <tr><td class="ik">Tipo de via</td><td class="iv" id="p-via"></td></tr>
+        <tr class="so-equipe"><td class="ik">Denunciante</td><td class="iv" id="p-den"></td></tr>
+        <tr class="so-equipe"><td class="ik">Telefone</td><td class="iv" id="p-tel"></td></tr>
+        <tr class="so-equipe"><td class="ik">E-mail</td><td class="iv" id="p-email"></td></tr>
       </table>
     </div>
     <div class="panel-sec">
       <div class="sec" style="margin-bottom:6px">Descrição</div>
       <div id="p-desc" style="font-size:13px;color:var(--tx1);line-height:1.6"></div>
     </div>
-    <div class="panel-sec" id="p-edit">
+    <div class="panel-sec so-equipe" id="p-edit">
       <div class="sec" style="margin-bottom:10px">Atualizar status</div>
       <div class="field" style="margin-bottom:10px">
         <label>Novo status</label>
@@ -689,17 +709,17 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
       </div>
       <div class="field" style="margin-bottom:12px">
         <label>Observação</label>
-        <textarea id="p-obs" placeholder="Notas para a equipe…"></textarea>
+        <textarea id="p-obs" placeholder="Notas internas (só a equipe vê)…"></textarea>
       </div>
       <div class="action-row" style="margin:0">
         <button class="act-btn" onclick="fecharPainel()">Cancelar</button>
         <button class="act-btn success" onclick="salvarPainel()"><i class="ti ti-circle-check"></i> Salvar</button>
       </div>
     </div>
-    <div class="action-row" style="margin-top:4px">
+    <div class="action-row so-equipe" style="margin-top:4px">
       <button class="act-btn" onclick="abrirResolucao()"><i class="ti ti-circle-check"></i> Registrar resolução</button>
     </div>
-    <div class="action-row" style="margin-top:6px">
+    <div class="action-row so-equipe" style="margin-top:6px">
       <button class="act-btn" id="btn-excluir" onclick="excluirOcorrencia()"
         style="color:var(--cd);border-color:var(--bdd);flex:1">
         <i class="ti ti-trash"></i> Excluir ocorrência
@@ -709,6 +729,20 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 </aside>
 
 <div id="toast"></div>
+
+<!-- ══ LOGIN DA EQUIPE ══ -->
+<div class="login-modal" id="login-modal" onclick="if(event.target===this)fecharLogin()">
+  <form class="login-box" onsubmit="event.preventDefault();entrarEquipe()">
+    <div class="sec"><i class="ti ti-lock"></i> Acesso da equipe</div>
+    <div class="field" style="margin-bottom:10px"><label>E-mail</label><input id="login-email" type="email" autocomplete="username" required></div>
+    <div class="field" style="margin-bottom:10px"><label>Senha</label><input id="login-senha" type="password" autocomplete="current-password" required></div>
+    <div class="login-erro" id="login-erro"></div>
+    <div class="action-row" style="margin:0">
+      <button type="button" class="act-btn" onclick="fecharLogin()">Cancelar</button>
+      <button type="submit" class="act-btn success" id="btn-entrar"><i class="ti ti-login"></i> Entrar</button>
+    </div>
+  </form>
+</div>
 
 <!-- ══ LIGHTBOX ══ -->
 <div class="lightbox" id="lightbox" onclick="fecharLightbox(event)">
@@ -720,6 +754,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <!-- Storage: ImgBB (gratuito, sem cartão) -->
 <!-- ══ LEAFLET ══ -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -739,11 +774,22 @@ const firebaseConfig = {
 /* ⚙️  ImgBB — chave gratuita em imgbb.com/api */
 const IMGBB_KEY = "da635a32eb4b8060a8495db75f62b41f";
 
+/* ── Teste local: http://localhost:PORTA/?emulador usa o Firebase Emulator
+      (nada é gravado no Firestore de produção nem enviado ao ImgBB) ── */
+const EMULADOR = ['localhost','127.0.0.1'].includes(location.hostname)
+  && new URLSearchParams(location.search).has('emulador');
+
 /* ── Inicializa Firebase ── */
-let db, FIREBASE_OK = false;
+let db, auth, FIREBASE_OK = false;
 try {
   firebase.initializeApp(firebaseConfig);
   db      = firebase.firestore();
+  auth    = firebase.auth();
+  if (EMULADOR) {
+    db.useEmulator('127.0.0.1', 8080);
+    auth.useEmulator('http://127.0.0.1:9099');
+    console.warn('Modo emulador: Firestore/Auth locais.');
+  }
   FIREBASE_OK = firebaseConfig.apiKey !== 'COLE_AQUI' && firebaseConfig.apiKey.length > 10;
 } catch(e) {
   console.warn('Firebase não configurado:', e);
@@ -752,6 +798,7 @@ try {
 if (FIREBASE_OK) {
   document.getElementById('cfg-banner').style.display = 'none';
   iniciarListeners();
+  auth.onAuthStateChanged(atualizarSessao);
 } else {
   console.warn('Configure o firebaseConfig com as chaves do seu projeto.');
 }
@@ -796,7 +843,123 @@ function iniciarListeners() {
       OCS = snap.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
       if (mGok) renderPins();
       atualizarPainel();
+      atualizarAvisoMigracao();
     }, err => console.error('Firestore:', err));
+}
+
+/* ════════════════════════════════════════════════════════
+   EQUIPE — login (Firebase Auth) e dados restritos
+   Só quem tem documento em equipe/{uid} é tratado como equipe;
+   as regras do Firestore (firestore.rules) fazem a mesma checagem.
+════════════════════════════════════════════════════════ */
+let EQUIPE = false;
+let DEN = {};    // denunciantes/{id}: nome, telefone, email
+let NOTAS = {};  // notasEquipe/{id}: observacao
+let _unsubEquipe = [];
+
+async function atualizarSessao(user) {
+  _unsubEquipe.forEach(f => f());
+  _unsubEquipe = [];
+  DEN = {}; NOTAS = {};
+  EQUIPE = false;
+  if (user) {
+    try {
+      EQUIPE = (await db.collection('equipe').doc(user.uid).get()).exists;
+    } catch(e) { console.error('Equipe:', e); }
+    if (!EQUIPE) {
+      alert('Este usuário não está autorizado como equipe.');
+      auth.signOut();
+      return;
+    }
+    const ouvir = (col, alvo) => db.collection(col).onSnapshot(snap => {
+      snap.docChanges().forEach(ch => {
+        if (ch.type === 'removed') delete alvo[ch.doc.id];
+        else alvo[ch.doc.id] = ch.doc.data();
+      });
+    }, err => console.error(col + ':', err));
+    _unsubEquipe = [ouvir('denunciantes', DEN), ouvir('notasEquipe', NOTAS)];
+  }
+  document.body.classList.toggle('is-equipe', EQUIPE);
+  document.getElementById('btn-login-txt').textContent = EQUIPE ? `Sair (${user.email})` : 'Equipe';
+  document.getElementById('btn-login').querySelector('i').className = EQUIPE ? 'ti ti-logout' : 'ti ti-lock';
+  if (!EQUIPE) {
+    fecharPainel();
+    if (document.getElementById('s-resolucao').classList.contains('active')) { resetarResolucao(); go('mapa'); }
+  }
+  atualizarAvisoMigracao();
+}
+
+function cliqueLogin() {
+  if (EQUIPE) { if (confirm('Sair da conta da equipe?')) auth.signOut(); return; }
+  document.getElementById('login-erro').textContent = '';
+  document.getElementById('login-modal').classList.add('show');
+  document.getElementById('login-email').focus();
+}
+function fecharLogin() {
+  document.getElementById('login-modal').classList.remove('show');
+  document.getElementById('login-senha').value = '';
+}
+async function entrarEquipe() {
+  const btn = document.getElementById('btn-entrar');
+  btn.disabled = true;
+  try {
+    await auth.signInWithEmailAndPassword(
+      document.getElementById('login-email').value.trim(),
+      document.getElementById('login-senha').value);
+    fecharLogin();
+  } catch(e) {
+    document.getElementById('login-erro').textContent = 'E-mail ou senha inválidos.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ── Migração: ocorrências antigas tinham dados pessoais no documento público ── */
+const CAMPOS_PESSOAIS_ANTIGOS = ['denunciante','cpf','telefone','email','observacao'];
+function ocsComDadosAntigos() {
+  return OCS.filter(o => CAMPOS_PESSOAIS_ANTIGOS.some(c => c in o));
+}
+function atualizarAvisoMigracao() {
+  const qtd = EQUIPE ? ocsComDadosAntigos().length : 0;
+  document.getElementById('migra-qtd').textContent = qtd;
+  document.getElementById('migra-banner').style.display = qtd ? '' : 'none';
+}
+async function migrarDadosAntigos() {
+  if (!EQUIPE) return;
+  const lista = ocsComDadosAntigos();
+  if (!lista.length) return;
+  if (!confirm(`Migrar os dados pessoais de ${lista.length} ocorrência(s)?\n\nO CPF será descartado, e os dados de denúncias anônimas também.`)) return;
+  const btn = document.getElementById('btn-migrar');
+  btn.disabled = true;
+  mostrarLoading('Migrando dados…');
+  const del = firebase.firestore.FieldValue.delete();
+  const agora = firebase.firestore.FieldValue.serverTimestamp();
+  try {
+    /* Lotes de até 150 ocorrências (cada uma usa até 3 gravações; limite do batch é 500) */
+    for (let i = 0; i < lista.length; i += 150) {
+      const batch = db.batch();
+      lista.slice(i, i + 150).forEach(oc => {
+        const nome = String(oc.denunciante || ''), tel = String(oc.telefone || ''), email = String(oc.email || '');
+        if (!oc.anonimo && (nome || tel || email)) {
+          batch.set(db.collection('denunciantes').doc(oc._docId),
+            { nome, telefone: tel, email, createdAt: oc.createdAt || agora }, { merge: true });
+        }
+        if (oc.observacao) {
+          batch.set(db.collection('notasEquipe').doc(oc._docId), { observacao: String(oc.observacao) }, { merge: true });
+        }
+        const limpar = {};
+        CAMPOS_PESSOAIS_ANTIGOS.forEach(c => { if (c in oc) limpar[c] = del; });
+        batch.update(db.collection('ocorrencias').doc(oc._docId), limpar);
+      });
+      await batch.commit();
+    }
+    toast(`✓ ${lista.length} ocorrência(s) migradas`);
+  } catch(e) {
+    alert('Erro na migração: ' + e.message);
+  } finally {
+    ocultarLoading();
+    btn.disabled = false;
+  }
 }
 
 /* ════════════════════════════════════════════════════════
@@ -949,6 +1112,7 @@ async function comprimirFoto(file) {
 async function uploadFoto(file) {
   /* 1. Comprime antes de enviar */
   const fileEnviar = await comprimirFoto(file);
+  if (EMULADOR) return `https://i.ibb.co/emulador/${Date.now()}_${encodeURIComponent(fileEnviar.name)}`;
 
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1001,32 +1165,39 @@ async function enviarDenuncia() {
     /* 2. Gera protocolo */
     const protocolo = gerarProtocolo();
 
-    /* 3. Salva no Firestore */
-    await db.collection('ocorrencias').add({
+    /* 3. Salva no Firestore: ocorrência pública + dados pessoais na coleção restrita,
+          no mesmo batch (as regras exigem). Denúncia anônima não grava dados pessoais. */
+    const agora   = firebase.firestore.FieldValue.serverTimestamp();
+    const anonimo = document.getElementById('anon').checked;
+    const ocRef   = db.collection('ocorrencias').doc();
+    const batch   = db.batch();
+    batch.set(ocRef, {
       protocolo,
       tipo:              selTipoVal,
       status:            'pendente',
       lat, lng,
-      endereco:          document.getElementById('inp-end').value || '',
+      endereco:          (document.getElementById('inp-end').value || '').slice(0, 300),
       gravidade:         selGravVal,
       dimensao:          document.getElementById('sel-dimensao').value,
       tipoVia:           document.getElementById('sel-via').value,
       fluxo:             document.getElementById('sel-fluxo').value,
-      desc:              document.getElementById('inp-desc').value,
-      denunciante:       document.getElementById('inp-nome').value,
-      cpf:               document.getElementById('inp-cpf').value,
-      telefone:          document.getElementById('inp-tel').value,
-      email:             document.getElementById('inp-email').value,
-      anonimo:           document.getElementById('anon').checked,
+      desc:              document.getElementById('inp-desc').value.slice(0, 2000),
+      anonimo,
       fotos:             fotoUrls,
       reparoAnterior:    document.getElementById('chk-reparo').checked,
-      protocoloAnterior: document.getElementById('inp-proto-ant').value,
+      protocoloAnterior: document.getElementById('inp-proto-ant').value.slice(0, 30),
       empresa:           '',
-      observacao:        '',
       data:              new Date().toLocaleDateString('pt-BR'),
-      createdAt:         firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt:         firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt:         agora,
+      updatedAt:         agora,
     });
+    const nome     = document.getElementById('inp-nome').value.trim();
+    const telefone = document.getElementById('inp-tel').value.trim();
+    const email    = document.getElementById('inp-email').value.trim();
+    if (!anonimo && (nome || telefone || email)) {
+      batch.set(db.collection('denunciantes').doc(ocRef.id), { nome, telefone, email, createdAt: agora });
+    }
+    await batch.commit();
 
     ocultarLoading();
     alert(`✅ Denúncia enviada!\n\nProtocolo: ${protocolo}\nAguarde retorno da prefeitura.`);
@@ -1062,7 +1233,6 @@ function resetarFormulario() {
   document.getElementById('inp-end').value = '';
   document.getElementById('inp-desc').value = '';
   document.getElementById('inp-nome').value = '';
-  document.getElementById('inp-cpf').value = '';
   document.getElementById('inp-tel').value = '';
   document.getElementById('inp-email').value = '';
   document.getElementById('coord-banner').style.display = 'none';
@@ -1076,7 +1246,17 @@ function resetarFormulario() {
   selSev(document.querySelector('.sev-btn[data-lv="media"]'));
   ['sel-dimensao','sel-via','sel-fluxo'].forEach(id => document.getElementById(id).selectedIndex = 0);
   document.getElementById('anon').checked = false;
+  toggleAnonimo(document.getElementById('anon'));
   mostrarEstadoF('loc-idle');
+}
+
+/* Denúncia anônima: desabilita (e limpa) os campos de dados pessoais */
+function toggleAnonimo(cb) {
+  document.querySelectorAll('#dados-pessoais input').forEach(inp => {
+    inp.disabled = cb.checked;
+    if (cb.checked) inp.value = '';
+  });
+  document.getElementById('dados-pessoais').style.opacity = cb.checked ? '.5' : '';
 }
 
 /* ════════════════════════════════════════════════════════
@@ -1296,7 +1476,7 @@ function popupHTML(oc) {
       <button class="popup-btn" data-acao="detalhes">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Detalhes
       </button>
-      <button class="popup-btn primary" data-acao="editar">
+      <button class="popup-btn primary so-equipe" data-acao="editar">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar
       </button>
     </div>
@@ -1430,12 +1610,18 @@ function abrirPainel(docId, editar) {
   document.getElementById('p-coords').textContent = `${(oc.lat||0).toFixed(8)}, ${(oc.lng||0).toFixed(8)}`;
   document.getElementById('p-grav').textContent  = GRAV[oc.gravidade] || oc.gravidade || '—';
   document.getElementById('p-data').textContent  = oc.data || '—';
-  document.getElementById('p-den').textContent   = oc.anonimo ? 'Anônimo' : (oc.denunciante || '—');
   document.getElementById('p-via').textContent   = oc.tipoVia || '—';
   document.getElementById('p-desc').textContent  = oc.desc || '—';
+  /* Dados restritos: só chegam aqui para a equipe logada (DEN/NOTAS ficam vazios para o público).
+     oc.denunciante/telefone/email/observacao só existem em ocorrências ainda não migradas. */
+  const den = EQUIPE ? (DEN[docId] || {}) : {};
+  const legado = EQUIPE ? oc : {};
+  document.getElementById('p-den').textContent   = oc.anonimo ? 'Anônimo' : (den.nome || legado.denunciante || '—');
+  document.getElementById('p-tel').textContent   = oc.anonimo ? '—' : (den.telefone || legado.telefone || '—');
+  document.getElementById('p-email').textContent = oc.anonimo ? '—' : (den.email || legado.email || '—');
   document.getElementById('p-sel-status').value  = oc.status || 'pendente';
   document.getElementById('p-sel-empresa').value = oc.empresa || '';
-  document.getElementById('p-obs').value         = oc.observacao || '';
+  document.getElementById('p-obs').value         = EQUIPE ? ((NOTAS[docId] || {}).observacao || legado.observacao || '') : '';
   document.getElementById('p-edit').style.display = editar ? '' : 'none';
 
   // Foto no painel — clicável para lightbox
@@ -1468,19 +1654,23 @@ function centralizarPin() {
 
 /* ── Salvar edição de status no Firestore ── */
 async function salvarPainel() {
-  if (!FIREBASE_OK || !_pidDocId) return;
+  if (!FIREBASE_OK || !EQUIPE || !_pidDocId) return;
   const novoStatus  = document.getElementById('p-sel-status').value;
   const empresa     = document.getElementById('p-sel-empresa').value;
   const observacao  = document.getElementById('p-obs').value;
 
   mostrarLoading('Atualizando…');
   try {
-    await db.collection('ocorrencias').doc(_pidDocId).update({
+    /* Observação é interna: vai para notasEquipe, não para o documento público */
+    const batch = db.batch();
+    batch.update(db.collection('ocorrencias').doc(_pidDocId), {
       status: novoStatus,
       empresa,
-      observacao,
+      observacao: firebase.firestore.FieldValue.delete(), // remove resto de versão antiga
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
+    batch.set(db.collection('notasEquipe').doc(_pidDocId), { observacao }, { merge: true });
+    await batch.commit();
     fecharPainel();
     toast(`✓ Status atualizado → ${LSTATUS[novoStatus]}`);
   } catch(e) {
@@ -1492,6 +1682,7 @@ async function salvarPainel() {
 
 /* ── Abrir tela de resolução a partir do painel ── */
 function abrirResolucao() {
+  if (!EQUIPE) return;
   const oc = OCS.find(o => o._docId === _pidDocId);
   if (!oc) return;
   /* Guarda o ID antes de fecharPainel(), que zera _pidDocId */
@@ -1535,7 +1726,7 @@ function cancelarResolucao() {
 
 /* ── Excluir ocorrência do Firestore ── */
 async function excluirOcorrencia() {
-  if (!FIREBASE_OK || !_pidDocId) return;
+  if (!FIREBASE_OK || !EQUIPE || !_pidDocId) return;
   const oc = OCS.find(o => o._docId === _pidDocId);
   const proto = oc?.protocolo || _pidDocId.slice(-6);
 
@@ -1552,7 +1743,10 @@ async function excluirOcorrencia() {
   btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Excluindo…';
 
   try {
-    await db.collection('ocorrencias').doc(_pidDocId).delete();
+    /* Apaga junto os dados pessoais e as notas internas */
+    const batch = db.batch();
+    ['ocorrencias','denunciantes','notasEquipe'].forEach(col => batch.delete(db.collection(col).doc(_pidDocId)));
+    await batch.commit();
     fecharPainel();
     toast(`🗑️ Ocorrência #${proto} excluída`);
   } catch(e) {
@@ -1562,6 +1756,7 @@ async function excluirOcorrencia() {
   }
 }
 async function confirmarResolucao() {
+  if (!EQUIPE) { alert('Entre com a conta da equipe para registrar a resolução.'); return; }
   if (!FIREBASE_OK || !_resDocId) { alert('Selecione uma ocorrência no mapa ou no painel e clique em “Registrar resolução”.'); return; }
   if (!fotoResArq) { alert('Anexe a foto do reparo antes de confirmar.'); return; }
 
