@@ -634,7 +634,7 @@ body.modo-mapa .app-body{max-width:100%;padding:0;margin:0}
     </div>
   </div>
   <div class="action-row">
-    <button class="act-btn" onclick="go('painel')">Cancelar</button>
+    <button class="act-btn" onclick="cancelarResolucao()">Cancelar</button>
     <button class="act-btn success" id="btn-confirmar-res" onclick="confirmarResolucao()"><i class="ti ti-circle-check"></i> Confirmar resolução</button>
   </div>
 </section>
@@ -762,6 +762,21 @@ if (FIREBASE_OK) {
 let OCS = [];
 let _pid = null;       // ID da ocorrência aberta no painel
 let _pidDocId = null;  // ID do documento Firestore
+let _resDocId = null;  // ID do documento em resolução (independe do painel lateral)
+
+/* ── Escapa texto para inserir com segurança em HTML ── */
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+/* ── Valor seguro para background-image: url("…") ── */
+function cssUrl(u) {
+  return `url("${String(u ?? '').replace(/["\\\n\r]/g, '')}")`;
+}
+/* ── Data AAAA-MM-DD no fuso do dispositivo (toISOString usa UTC) ── */
+function dataLocalISO(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
 
 /* ── LABELS ── */
 const LTIPO   = {buraco:'Buraco',afunda:'Afundamento',protu:'Protuberância'};
@@ -808,9 +823,13 @@ function go(name) {
   /* Preenche data/hora do dispositivo ao abrir a tela de resolução */
   if (name === 'resolucao') {
     const now = new Date();
-    document.getElementById('res-data').value = now.toISOString().split('T')[0];
+    document.getElementById('res-data').value = dataLocalISO(now);
     document.getElementById('res-hora').value =
       String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    if (!_resDocId) {
+      document.getElementById('res-proto').textContent = '—';
+      document.getElementById('res-end').textContent   = 'Selecione uma ocorrência no mapa ou no painel e clique em “Registrar resolução”.';
+    }
   }
 }
 
@@ -1032,6 +1051,7 @@ function gerarProtocolo() {
 function resetarFormulario() {
   fotosArq.fill(null);
   for (let i=1; i<=3; i++) {
+    document.getElementById('prev-' + i).style.backgroundImage = '';
     document.getElementById('prev-' + i).classList.remove('show');
     document.getElementById('ok-' + i).classList.remove('show');
     if (i > 1) document.getElementById('slot-' + i).style.opacity = '.5';
@@ -1049,6 +1069,13 @@ function resetarFormulario() {
   document.getElementById('tags-via').innerHTML = '';
   const pasteInp = document.getElementById('inp-paste-coords');
   pasteInp.value = ''; pasteInp.classList.remove('ok','err');
+  pasteInp.placeholder = '-22.106714598026688, -51.39042136351584';
+  /* Volta tipo, gravidade e seletores aos valores padrão */
+  selTipo(document.querySelector('.tipo-card[data-tipo="buraco"]')); // também limpa "reparo anterior"
+  document.getElementById('inp-proto-ant').value = '';
+  selSev(document.querySelector('.sev-btn[data-lv="media"]'));
+  ['sel-dimensao','sel-via','sel-fluxo'].forEach(id => document.getElementById(id).selectedIndex = 0);
+  document.getElementById('anon').checked = false;
   mostrarEstadoF('loc-idle');
 }
 
@@ -1080,21 +1107,28 @@ function atualizarPainel() {
   lista.innerHTML = OCS.slice(0, 15).map(oc => {
     const fotos = oc.fotos && oc.fotos.length ? oc.fotos : null;
     const thumb = fotos
-      ? `style="background-image:url(${fotos[0]});background-size:cover;background-position:center" class="rphoto foto-clicavel" onclick="event.stopPropagation();abrirLightbox(${JSON.stringify(fotos)},0)"`
-      : `class="rphoto"`;
-    const icone = !fotos
-      ? `<i class="ti ti-${oc.tipo==='buraco'?'circle-dashed':oc.tipo==='afunda'?'trending-down':'trending-up'}" style="color:${CORT[oc.tipo]}"></i>`
-      : '';
-    return `<div class="report-item" onclick="abrirPainel('${oc._docId}',false)">
-      <div class="rphoto" ${thumb}>${icone}</div>
+      ? `<div class="rphoto foto-clicavel" data-acao="fotos" style="background-image:${esc(cssUrl(fotos[0]))}"></div>`
+      : `<div class="rphoto"><i class="ti ti-${oc.tipo==='buraco'?'circle-dashed':oc.tipo==='afunda'?'trending-down':'trending-up'}" style="color:${CORT[oc.tipo]||'#888'}"></i></div>`;
+    return `<div class="report-item" data-id="${esc(oc._docId)}">
+      ${thumb}
       <div class="rinfo">
-        <div class="raddr">${oc.endereco || '—'}</div>
-        <div class="rmeta"><span class="badge b-${oc.tipo}">${LTIPO[oc.tipo]}</span>#${oc.protocolo || oc._docId.slice(-6)} · ${oc.data || '—'}</div>
+        <div class="raddr">${esc(oc.endereco || '—')}</div>
+        <div class="rmeta"><span class="badge b-${esc(oc.tipo)}">${esc(LTIPO[oc.tipo] || oc.tipo)}</span>#${esc(oc.protocolo || oc._docId.slice(-6))} · ${esc(oc.data || '—')}</div>
       </div>
       <span class="badge ${BSTATUS[oc.status]||'b-pend'}">${LSTATUS[oc.status]||'Pendente'}</span>
     </div>`;
   }).join('');
 }
+
+/* Cliques na lista do painel: miniatura abre a foto, resto do item abre o painel lateral */
+document.getElementById('painel-lista').addEventListener('click', e => {
+  const item = e.target.closest('.report-item[data-id]');
+  if (!item) return;
+  const oc = OCS.find(o => o._docId === item.dataset.id);
+  if (!oc) return;
+  if (e.target.closest('[data-acao="fotos"]')) abrirLightbox(oc.fotos, 0);
+  else abrirPainel(oc._docId, false);
+});
 
 /* ════════════════════════════════════════════════════════
    TILES GOOGLE HYBRID
@@ -1247,21 +1281,22 @@ function criarPin(tipo, status) {
 function popupHTML(oc) {
   const gc = oc.gravidade==='alta'?'#9B2626':oc.gravidade==='media'?'#7A4508':'#0F6E56';
   const fotoEl = oc.fotos && oc.fotos[0]
-    ? `<div class="popup-foto foto-clicavel" data-fotos='${JSON.stringify(oc.fotos)}' style="display:block;background-image:url(${oc.fotos[0]})" title="Clique para ampliar"></div>` : '';
-  return `<div class="popup-card">
+    ? `<div class="popup-foto foto-clicavel" data-acao="fotos" style="display:block;background-image:${esc(cssUrl(oc.fotos[0]))}" title="Clique para ampliar"></div>` : '';
+  const grav = String(oc.gravidade||'');
+  return `<div class="popup-card" data-id="${esc(oc._docId)}">
     <div class="popup-header">
-      <div class="popup-tipo">${LTIPO[oc.tipo]||oc.tipo}</div>
+      <div class="popup-tipo">${esc(LTIPO[oc.tipo]||oc.tipo)}</div>
       <span class="badge ${BSTATUS[oc.status]||'b-pend'}">${LSTATUS[oc.status]||'Pendente'}</span>
     </div>
     ${fotoEl}
-    <div class="popup-addr">${oc.endereco||'—'}</div>
-    <div class="popup-meta"><span>#${oc.protocolo||oc._docId.slice(-6)}</span>·<span>${oc.data||'—'}</span>·<span style="color:${gc}">${(oc.gravidade||'').charAt(0).toUpperCase()+(oc.gravidade||'').slice(1)}</span></div>
-    <div class="popup-body">${(oc.desc||'').slice(0,100)}${oc.desc&&oc.desc.length>100?'…':''}</div>
+    <div class="popup-addr">${esc(oc.endereco||'—')}</div>
+    <div class="popup-meta"><span>#${esc(oc.protocolo||oc._docId.slice(-6))}</span>·<span>${esc(oc.data||'—')}</span>·<span style="color:${gc}">${esc(grav.charAt(0).toUpperCase()+grav.slice(1))}</span></div>
+    <div class="popup-body">${esc(String(oc.desc||'').slice(0,100))}${oc.desc&&oc.desc.length>100?'…':''}</div>
     <div class="popup-footer">
-      <button class="popup-btn" onclick="abrirPainel('${oc._docId}',false)">
+      <button class="popup-btn" data-acao="detalhes">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Detalhes
       </button>
-      <button class="popup-btn primary" onclick="abrirPainel('${oc._docId}',true)">
+      <button class="popup-btn primary" data-acao="editar">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar
       </button>
     </div>
@@ -1294,19 +1329,19 @@ function iniciarMapaGeral() {
       novaDenunciaNoMapa(lat, lng);
     });
 
-    /* Após o popup ser montado no DOM, anexa o click na foto */
-    mG.on('popupopen', e => {
-      const fotoEl = e.popup.getElement()?.querySelector('.popup-foto[data-fotos]');
-      if (!fotoEl) return;
-      try {
-        const fotos = JSON.parse(fotoEl.dataset.fotos);
-        fotoEl.style.cursor = 'zoom-in';
-        fotoEl.addEventListener('click', ev => {
-          ev.stopPropagation();
-          abrirLightbox(fotos, 0);
-        }, { once: true });
-      } catch(_) {}
-    });
+    /* Cliques nos popups (foto, Detalhes, Editar) — um único listener no contêiner,
+       em fase de captura: o Leaflet bloqueia a propagação dentro do popup e
+       recria o HTML dele sem avisar quando o reabre */
+    mG.getContainer().addEventListener('click', ev => {
+      const alvo = ev.target.closest('.popup-card [data-acao]');
+      if (!alvo) return;
+      ev.stopPropagation();
+      const oc = OCS.find(o => o._docId === alvo.closest('.popup-card').dataset.id);
+      if (!oc) return;
+      if (alvo.dataset.acao === 'fotos')    abrirLightbox(oc.fotos, 0);
+      if (alvo.dataset.acao === 'detalhes') abrirPainel(oc._docId, false);
+      if (alvo.dataset.acao === 'editar')   abrirPainel(oc._docId, true);
+    }, true);
 
     mGok = true;
     obterLocUsuario();
@@ -1388,7 +1423,7 @@ function abrirPainel(docId, editar) {
   _pidDocId = docId;
   if (mG) mG.closePopup();
 
-  document.getElementById('p-tipo').innerHTML   = `<span class="badge b-${oc.tipo}">${LTIPO[oc.tipo]||oc.tipo}</span>`;
+  document.getElementById('p-tipo').innerHTML   = `<span class="badge b-${esc(oc.tipo)}">${esc(LTIPO[oc.tipo]||oc.tipo)}</span>`;
   document.getElementById('p-status').innerHTML = `<span class="badge ${BSTATUS[oc.status]||'b-pend'}">${LSTATUS[oc.status]||'Pendente'}</span>`;
   document.getElementById('p-proto').textContent = '#' + (oc.protocolo || docId.slice(-6));
   document.getElementById('p-end').textContent   = oc.endereco || '—';
@@ -1406,7 +1441,7 @@ function abrirPainel(docId, editar) {
   // Foto no painel — clicável para lightbox
   const fotoEl = document.getElementById('p-foto');
   if (oc.fotos && oc.fotos[0]) {
-    fotoEl.style.backgroundImage = `url(${oc.fotos[0]})`;
+    fotoEl.style.backgroundImage = cssUrl(oc.fotos[0]);
     fotoEl.innerHTML = '';
     tornarClicavel(fotoEl, oc.fotos, 0);
   } else {
@@ -1459,20 +1494,43 @@ async function salvarPainel() {
 function abrirResolucao() {
   const oc = OCS.find(o => o._docId === _pidDocId);
   if (!oc) return;
-  document.getElementById('res-proto').textContent = oc.protocolo || _pidDocId.slice(-6);
+  /* Guarda o ID antes de fecharPainel(), que zera _pidDocId */
+  resetarResolucao();
+  _resDocId = oc._docId;
+  document.getElementById('res-proto').textContent = oc.protocolo || oc._docId.slice(-6);
   document.getElementById('res-end').textContent   = oc.endereco || '—';
-  // preenche data/hora atual
-  const now = new Date();
-  document.getElementById('res-data').value = now.toISOString().split('T')[0];
-  document.getElementById('res-hora').value = now.toTimeString().slice(0,5);
   // foto antes
   const fAnt = document.getElementById('res-foto-antes');
   if (oc.fotos && oc.fotos[0]) {
-    fAnt.style.backgroundImage = `url(${oc.fotos[0]})`;
+    fAnt.style.backgroundImage = cssUrl(oc.fotos[0]);
     fAnt.innerHTML = '';
   }
   fecharPainel();
-  go('resolucao');
+  go('resolucao'); // go() preenche data/hora locais
+}
+
+/* ── Limpa a tela de resolução ── */
+function resetarResolucao() {
+  _resDocId = null;
+  fotoResArq = null;
+  document.getElementById('res-foto').value = '';
+  const prev = document.getElementById('res-prev');
+  prev.style.backgroundImage = '';
+  prev.classList.remove('show');
+  document.getElementById('res-ok').classList.remove('show');
+  document.getElementById('res-empresa').value = '';
+  document.getElementById('res-obs').value = '';
+  const qualPadrao = document.querySelector('input[name="qual"][value="adequado"]');
+  if (qualPadrao) qualPadrao.checked = true;
+  const fAnt = document.getElementById('res-foto-antes');
+  fAnt.style.backgroundImage = '';
+  fAnt.innerHTML = '<i class="ti ti-road-off" style="font-size:28px;color:var(--cd)"></i>';
+  document.getElementById('res-proto').textContent = '—';
+  document.getElementById('res-end').textContent   = '—';
+}
+function cancelarResolucao() {
+  resetarResolucao();
+  go('painel');
 }
 
 /* ── Excluir ocorrência do Firestore ── */
@@ -1504,7 +1562,7 @@ async function excluirOcorrencia() {
   }
 }
 async function confirmarResolucao() {
-  if (!FIREBASE_OK || !_pidDocId) { alert('Selecione uma ocorrência no painel primeiro.'); return; }
+  if (!FIREBASE_OK || !_resDocId) { alert('Selecione uma ocorrência no mapa ou no painel e clique em “Registrar resolução”.'); return; }
   if (!fotoResArq) { alert('Anexe a foto do reparo antes de confirmar.'); return; }
 
   mostrarLoading('Registrando resolução…');
@@ -1517,7 +1575,7 @@ async function confirmarResolucao() {
 
     const avaliacao = document.querySelector('input[name="qual"]:checked')?.value || 'adequado';
 
-    await db.collection('ocorrencias').doc(_pidDocId).update({
+    await db.collection('ocorrencias').doc(_resDocId).update({
       status:        'resolvido',
       empresa:       document.getElementById('res-empresa').value,
       dataResolucao: `${document.getElementById('res-data').value} ${document.getElementById('res-hora').value}`,
@@ -1529,7 +1587,7 @@ async function confirmarResolucao() {
 
     ocultarLoading();
     toast('✓ Ocorrência marcada como resolvida!');
-    fotoResArq = null;
+    resetarResolucao();
     go('painel');
   } catch(e) {
     ocultarLoading();
