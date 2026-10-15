@@ -1,0 +1,95 @@
+rules_version = '2';
+
+/*
+ * Regras do Firestore — Ocorrências viárias
+ *
+ *  ocorrencias/{id}   público lê; público só CRIA (campos validados);
+ *                     editar e excluir só a equipe.
+ *  denunciantes/{id}  dados pessoais (nome, telefone, e-mail) da ocorrência {id}.
+ *                     Público só cria, junto com a ocorrência; só a equipe lê.
+ *  notasEquipe/{id}   observações internas da equipe sobre a ocorrência {id}.
+ *  equipe/{uid}       lista de quem é da equipe. Gerida só pelo console.
+ *
+ * Deploy: firebase deploy --only firestore:rules   (ver README)
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isEquipe() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/equipe/$(request.auth.uid));
+    }
+
+    function textoAte(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    function fotoImgbb(lista, i) {
+      return lista.size() <= i
+        || (lista[i] is string
+            && lista[i].size() <= 300
+            && lista[i].matches('https://i[.]ibb[.]co/[^"\\\\<>]+'));
+    }
+
+    function ocorrenciaValida(d) {
+      return d.keys().hasOnly([
+          'protocolo', 'tipo', 'status', 'lat', 'lng', 'endereco', 'gravidade',
+          'dimensao', 'tipoVia', 'fluxo', 'desc', 'anonimo', 'fotos',
+          'reparoAnterior', 'protocoloAnterior', 'empresa', 'data',
+          'createdAt', 'updatedAt'])
+        && d.keys().hasAll([
+          'protocolo', 'tipo', 'status', 'lat', 'lng', 'gravidade', 'anonimo',
+          'fotos', 'createdAt', 'updatedAt'])
+        && textoAte(d.protocolo, 20)
+        && d.tipo in ['buraco', 'afunda', 'protu']
+        && d.status == 'pendente'
+        && d.lat is number && d.lat >= -90 && d.lat <= 90
+        && d.lng is number && d.lng >= -180 && d.lng <= 180
+        && textoAte(d.get('endereco', ''), 300)
+        && d.gravidade in ['baixa', 'media', 'alta']
+        && d.get('dimensao', 'pequeno') in ['pequeno', 'medio', 'grande', 'extenso']
+        && d.get('tipoVia', 'pista') in ['pista', 'acostamento', 'calcada', 'ciclovia']
+        && d.get('fluxo', 'alto') in ['alto', 'medio', 'baixo']
+        && textoAte(d.get('desc', ''), 2000)
+        && d.anonimo is bool
+        && d.fotos is list && d.fotos.size() >= 1 && d.fotos.size() <= 3
+        && fotoImgbb(d.fotos, 0) && fotoImgbb(d.fotos, 1) && fotoImgbb(d.fotos, 2)
+        && d.get('reparoAnterior', false) is bool
+        && textoAte(d.get('protocoloAnterior', ''), 30)
+        && d.get('empresa', '') == ''
+        && textoAte(d.get('data', ''), 20)
+        && d.createdAt == request.time
+        && d.updatedAt == request.time;
+    }
+
+    match /ocorrencias/{id} {
+      allow read: if true;
+      allow create: if isEquipe() || ocorrenciaValida(request.resource.data);
+      allow update, delete: if isEquipe();
+    }
+
+    match /denunciantes/{id} {
+      allow read, update, delete: if isEquipe();
+      // Só no mesmo batch que cria a ocorrência {id}, e nunca para denúncia anônima
+      allow create: if isEquipe() || (
+        request.resource.data.keys().hasOnly(['nome', 'telefone', 'email', 'createdAt'])
+        && textoAte(request.resource.data.get('nome', ''), 120)
+        && textoAte(request.resource.data.get('telefone', ''), 30)
+        && textoAte(request.resource.data.get('email', ''), 120)
+        && request.resource.data.createdAt == request.time
+        && !exists(/databases/$(database)/documents/ocorrencias/$(id))
+        && getAfter(/databases/$(database)/documents/ocorrencias/$(id)).data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/ocorrencias/$(id)).data.anonimo == false
+      );
+    }
+
+    match /notasEquipe/{id} {
+      allow read, write: if isEquipe();
+    }
+
+    match /equipe/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+  }
+}
